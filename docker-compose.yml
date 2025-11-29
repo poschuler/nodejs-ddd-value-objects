@@ -1,0 +1,17 @@
+name: structurizr-lite
+
+networks:
+  structurizr-network:
+    driver: bridge
+
+services:
+  structurizr-lite:
+    image: structurizr/lite:latest
+    container_name: structurizr-lite
+    restart: always
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./architecture:/usr/local/structurizr
+    networks:
+      - structurizr-network
