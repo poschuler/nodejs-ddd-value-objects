@@ -1,7 +1,6 @@
-import { ValueObject } from "./abstractions/value-object.abstract";
+import { type EqualityComponent, ValueObject } from "./value-object";
 
 export class Email extends ValueObject {
-
   public readonly value: string;
 
   private constructor(value: string) {
@@ -10,7 +9,6 @@ export class Email extends ValueObject {
   }
 
   public static create(input: string): Email {
-
     if (!input) throw new Error("Email requires a value");
 
     const normalizedEmail = input.trim().toLowerCase();
@@ -22,12 +20,12 @@ export class Email extends ValueObject {
     return new Email(normalizedEmail);
   }
 
-  protected getEqualityComponents() {
+  protected equalityComponents(): readonly EqualityComponent[] {
     return [this.value];
   }
 
   private static isValid(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@.]+(?:\.[^\s@.]+)*@[^\s@.]+(?:\.[^\s@.]+)+$/;
     return emailRegex.test(email);
   }
 }

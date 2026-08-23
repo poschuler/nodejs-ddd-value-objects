@@ -1,42 +1,48 @@
-import { ValueObject } from "./abstractions/value-object.abstract";
 import BigNumber from "bignumber.js";
-
-const ROUNDING_MODE = BigNumber.ROUND_HALF_UP;
-const DECIMAL_PLACES = 2;
+import { type EqualityComponent, ValueObject } from "./value-object";
 
 type AmountProps = {
   readonly value: BigNumber;
 };
 
 export class Amount extends ValueObject {
-
   public readonly value: BigNumber;
 
   private constructor(props: AmountProps) {
     super();
-    this.value = props.value.dp(DECIMAL_PLACES, ROUNDING_MODE);
+
+    if (!props.value.isFinite()) {
+      throw new Error(
+        `Invalid amount: "${props.value}" is not a finite number`,
+      );
+    }
+
+    this.value = props.value;
+    Object.freeze(this);
   }
 
   public static create(input: number | string | BigNumber): Amount {
-    try {
-      const bigValue = new BigNumber(input);
+    const bigValue = new BigNumber(input);
 
-      if (bigValue.isNaN()) {
-        throw new Error("Invalid amount: not a number");
-      }
-
-      if (bigValue.isNegative()) {
-        throw new Error("Invalid amount: amount cannot be negative");
-      }
-
-      return new Amount({ value: bigValue });
-    } catch {
-      throw new Error(`Error creating Amount from input: ${input}`);
+    if (bigValue.isNaN()) {
+      throw new Error(`Invalid amount: "${input}" is not a number`);
     }
+
+    return new Amount({ value: bigValue });
+  }
+
+  public round(decimals: number): Amount {
+    const newValue = this.value.dp(decimals, BigNumber.ROUND_HALF_UP);
+    return new Amount({ value: newValue });
   }
 
   public add(other: Amount): Amount {
     const newValue = this.value.plus(other.value);
+    return new Amount({ value: newValue });
+  }
+
+  public subtract(other: Amount): Amount {
+    const newValue = this.value.minus(other.value);
     return new Amount({ value: newValue });
   }
 
@@ -49,15 +55,23 @@ export class Amount extends ValueObject {
     return this.value.isZero();
   }
 
+  public isNegative(): boolean {
+    return this.value.isLessThan(0);
+  }
+
+  public isPositive(): boolean {
+    return this.value.isGreaterThan(0);
+  }
+
   public toString(): string {
-    return this.value.toFixed(DECIMAL_PLACES, ROUNDING_MODE);
+    return this.value.toFixed();
   }
 
-  public toNumber(): number {
-    return parseFloat(this.toString());
+  public toFixed(decimals: number): string {
+    return this.value.toFixed(decimals);
   }
 
-  protected getEqualityComponents() {
-    return [this.value.toFixed(DECIMAL_PLACES)];
+  protected equalityComponents(): readonly EqualityComponent[] {
+    return [this.value.toFixed()];
   }
 }

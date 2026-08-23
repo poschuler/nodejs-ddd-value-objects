@@ -1,0 +1,31 @@
+import type { Money } from "./money.vo";
+import { type EqualityComponent, ValueObject } from "./value-object";
+
+type PriceProps = {
+  readonly money: Money;
+};
+
+export class Price extends ValueObject {
+  public readonly money: Money;
+
+  private constructor(props: PriceProps) {
+    super();
+    this.money = props.money;
+    Object.freeze(this);
+  }
+
+  public static create(money: Money): Price {
+    if (money.amount.isNegative()) {
+      throw new Error(`Invalid price: ${money.amount} cannot be negative`);
+    }
+    return new Price({ money });
+  }
+
+  public toString(): string {
+    return this.money.toString();
+  }
+
+  protected equalityComponents(): readonly EqualityComponent[] {
+    return [this.money];
+  }
+}

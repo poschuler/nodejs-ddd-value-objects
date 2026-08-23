@@ -37,20 +37,20 @@ console.log(`salary.equals(salaryInEUR): ${salary.equals(salaryInEUR)}`); // -> 
 
 // 4. Perform operations
 const totalPayout = salary.add(bonus);
-console.log(`Total Payout (USD): ${totalPayout.amount.toNumber()}`); // -> 1250
+console.log(`Total Payout (USD): ${totalPayout}`); // -> 1250
 
 // 5. Demonstrate immutability
-console.log(`Original salary amount: ${salary.amount.toNumber()}`); // -> 1000 (unchanged)
+console.log(`Original salary amount: ${salary}`); // -> 1000 (unchanged)
 
 // 6. Handle different currencies
 try {
-    salary.add(salaryInEUR);
+  salary.add(salaryInEUR);
 } catch (error) {
-    console.log(`Error adding different currencies: ${(error as Error).message}`);
+  console.log(`Error adding different currencies: ${(error as Error).message}`);
 }
 
 // 7. Using the Zero factory
-const zeroUSD = Money.zero({ currency: usd });
+const zeroUSD = Money.zero(usd);
 console.log(`Is zero? ${zeroUSD.isZero()}`); // -> true
-console.log(`Is zero in USD? ${zeroUSD.isZeroInCurrency({ currency: usd })}`); // -> true
-console.log(`Is zero in EUR? ${zeroUSD.isZeroInCurrency({ currency: eur })}`); // -> false
+console.log(`Is zero in USD? ${zeroUSD.equals(Money.zero(usd))}`); // -> true
+console.log(`Is zero in EUR? ${zeroUSD.equals(Money.zero(eur))}`); // -> false
