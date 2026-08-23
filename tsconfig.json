@@ -1,16 +1,15 @@
 {
-  "extends": "@tsconfig/node22/tsconfig.json",
+  "extends": "@tsconfig/node24/tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./"
+    "noEmit": true,
+    "sourceMap": true
   },
-  "includes": [
-    "src/**/*.js",
-    "src/**/*.json",
+  "include": [
     "src/**/*.ts",
+    "test/**/*.ts"
   ],
   "exclude": [
     "dist",
-    "node_modules",
+    "node_modules"
   ]
 }

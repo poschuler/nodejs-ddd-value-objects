@@ -1,0 +1,97 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { Currency } from "../../src/domain/currency.vo";
+import { Money } from "../../src/domain/money.vo";
+import { Price } from "../../src/domain/price.vo";
+
+const usd = Currency.fromCode("USD");
+const eur = Currency.fromCode("EUR");
+const jpy = Currency.fromCode("JPY");
+
+const money = (amount: string | number, currency: Currency = usd) =>
+  Money.create({ amount, currency });
+
+describe("Price", () => {
+  describe("create", () => {
+    it("accepts a positive amount", () => {
+      assert.equal(Price.create(money("19.99")).toString(), "19.99 USD");
+    });
+
+    it("accepts zero", () => {
+      assert.equal(Price.create(money(0)).toString(), "0.00 USD");
+    });
+
+    it("accepts a currency with no minor unit", () => {
+      assert.equal(Price.create(money(1000, jpy)).toString(), "1000 JPY");
+    });
+
+    it("rejects a negative amount", () => {
+      // Matched loosely: the stable part of the contract is the reason,
+      // not how the amount is formatted inside the message.
+      assert.throws(() => Price.create(money(-1)), /cannot be negative/);
+    });
+
+    it("names the offending amount in the error", () => {
+      assert.throws(() => Price.create(money(-1)), {
+        message: "Invalid price: -1 cannot be negative",
+      });
+    });
+
+    it("inherits the currency scale rounding of Money", () => {
+      assert.equal(Price.create(money("19.994")).toString(), "19.99 USD");
+      assert.equal(Price.create(money("19.995")).toString(), "20.00 USD");
+    });
+
+    it("accepts a negative input that Money already rounded up to zero", () => {
+      // Money rounds -0.004 to the cent before Price ever sees it,
+      // so the negativity check never fires for sub-unit negatives.
+      assert.equal(Price.create(money("-0.004")).toString(), "0.00 USD");
+    });
+
+    it("still rejects a negative input that rounds to a negative cent", () => {
+      assert.throws(() => Price.create(money("-0.005")), /cannot be negative/);
+    });
+  });
+
+  describe("toString", () => {
+    it("delegates the formatting to Money", () => {
+      const amount = money("19.99");
+      assert.equal(Price.create(amount).toString(), amount.toString());
+    });
+  });
+
+  describe("value semantics", () => {
+    it("equates prices holding the same money", () => {
+      assert.equal(
+        Price.create(money("19.99")).equals(Price.create(money("19.99"))),
+        true,
+      );
+    });
+
+    it("does not equate different amounts", () => {
+      assert.equal(
+        Price.create(money("19.99")).equals(Price.create(money("29.99"))),
+        false,
+      );
+    });
+
+    it("does not equate the same amount in a different currency", () => {
+      assert.equal(
+        Price.create(money("19.99")).equals(Price.create(money("19.99", eur))),
+        false,
+      );
+    });
+
+    it("does not equate a Price with the Money it wraps", () => {
+      const amount = money("19.99");
+      assert.equal(Price.create(amount).equals(amount), false);
+    });
+
+    it("does not rely on reference identity", () => {
+      const a = Price.create(money("19.99"));
+      const b = Price.create(money("19.99"));
+      assert.notEqual(a, b);
+      assert.equal(a.equals(b), true);
+    });
+  });
+});

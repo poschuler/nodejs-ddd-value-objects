@@ -5,8 +5,14 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx --watch src/app.ts",
-    "build": "rimraf ./dist && tsc",
-    "start": "pnpm run build && node dist/src/app.js"
+    "build": "rimraf ./dist && tsc -p tsconfig.build.json",
+    "start": "pnpm run build && node dist/app.js",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "tsx --test \"test/**/*.test.ts\"",
+    "test:watch": "tsx --test --watch \"test/**/*.test.ts\"",
+    "test:coverage": "tsx --test --experimental-test-coverage \"test/**/*.test.ts\"",
+    "lint": "biome check src test",
+    "lint:fix": "biome check --write src test"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +23,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
-    "@tsconfig/node22": "^22.0.5",
+    "@tsconfig/node24": "^24.0.4",
     "@types/node": "^24.10.1",
     "rimraf": "^6.1.2",
     "tsx": "^4.20.6",
