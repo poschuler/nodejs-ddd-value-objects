@@ -1,9 +1,9 @@
 {
   "name": "nodejs-ddd-value-objects",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "TypeScript reference implementation of the DDD Value Object pattern for Node.js, built as teaching material.",
   "type": "module",
+  "private": true,
   "scripts": {
     "dev": "tsx --watch src/app.ts",
     "build": "rimraf ./dist && tsc -p tsconfig.build.json",
