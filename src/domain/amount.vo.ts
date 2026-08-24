@@ -52,6 +52,9 @@ export class Amount extends ValueObject {
   }
 
   public times(multiplier: number | string | BigNumber): Amount {
+    // Routed through create() so a malformed factor is reported by its own
+    // literal: BigNumber.times() would quietly turn it into NaN, and the
+    // message would name "NaN" instead of what the caller actually wrote.
     const factor = Amount.create(multiplier);
     const newValue = this.#value.times(factor.#value);
     return new Amount({ value: newValue });
@@ -73,6 +76,8 @@ export class Amount extends ValueObject {
     return this.#value.toFixed();
   }
 
+  // #value is not an own property, so without this hook JSON.stringify would
+  // emit {} and drop the amount without raising anything.
   public toJSON(): string {
     return this.toString();
   }
@@ -87,6 +92,9 @@ export class Amount extends ValueObject {
   }
 }
 
+// BigNumber accepts up to 1e9 decimal places, far enough to exhaust the heap
+// while formatting before it reports anything. No monetary scale comes near
+// this cap, so it stays well below the range where BigNumber becomes a hazard.
 const MAX_DECIMALS = 20;
 
 function assertDecimals(decimals: number): void {
