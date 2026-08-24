@@ -6,6 +6,7 @@ export class Email extends ValueObject {
   private constructor(value: string) {
     super();
     this.value = value;
+    Object.freeze(this);
   }
 
   public static create(input: string): Email {
