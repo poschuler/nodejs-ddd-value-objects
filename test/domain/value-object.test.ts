@@ -80,6 +80,18 @@ class Box extends ValueObject {
   }
 }
 
+/** Same class, variable component count: the only path to the length guard. */
+class Ragged extends ValueObject {
+  public readonly parts: readonly EqualityComponent[];
+  constructor(...parts: readonly EqualityComponent[]) {
+    super();
+    this.parts = parts;
+  }
+  protected equalityComponents(): readonly EqualityComponent[] {
+    return this.parts;
+  }
+}
+
 describe("ValueObject.equals", () => {
   describe("equality laws", () => {
     it("is reflexive", () => {
@@ -169,6 +181,17 @@ describe("ValueObject.equals", () => {
     it("does not coerce types between components", () => {
       assert.equal(new Box(0).equals(new Box("0")), false);
       assert.equal(new Box(false).equals(new Box(0)), false);
+    });
+
+    it("does not equate instances exposing a different number of components", () => {
+      // A component list whose length varies between instances of one class is
+      // a design smell, but it is legal. Without the length guard every() would
+      // only walk the shorter list, and equals would stop being symmetric.
+      const short = new Ragged(1);
+      const long = new Ragged(1, 2);
+
+      assert.equal(short.equals(long), false);
+      assert.equal(long.equals(short), false);
     });
   });
 });

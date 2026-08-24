@@ -95,4 +95,18 @@ describe("Currency", () => {
       assert.equal(a.equals(b), true);
     });
   });
+
+  describe("immutability", () => {
+    it("freezes each shared instance", () => {
+      // fromCode hands out singletons, so a single write would corrupt the
+      // currency for every consumer in the process, not just this caller.
+      const usd = Currency.fromCode("USD");
+
+      assert.equal(Object.isFrozen(usd), true);
+      assert.throws(() => {
+        (usd as { decimals: number }).decimals = 8;
+      }, TypeError);
+      assert.equal(Currency.fromCode("USD").decimals, 2);
+    });
+  });
 });

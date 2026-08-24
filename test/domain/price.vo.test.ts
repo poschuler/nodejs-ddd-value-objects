@@ -94,4 +94,31 @@ describe("Price", () => {
       assert.equal(a.equals(b), true);
     });
   });
+
+  describe("immutability", () => {
+    it("cannot be pushed negative after construction", () => {
+      // Object.freeze is shallow. If Amount exposed its BigNumber, writing to
+      // it through this chain would turn an already validated Price negative.
+      // The #private field is what makes the invariant hold for the whole
+      // lifetime of the object, not just at the moment of construction.
+      const price = Price.create(money("10.00"));
+
+      assert.throws(() => {
+        const inner = price.money.amount as unknown as { value: { s: number } };
+        inner.value.s = -1;
+      }, TypeError);
+      assert.equal(price.toString(), "10.00 USD");
+      assert.equal(price.money.amount.isNegative(), false);
+    });
+
+    it("freezes the instance", () => {
+      const price = Price.create(money("19.99"));
+
+      assert.equal(Object.isFrozen(price), true);
+      assert.throws(() => {
+        (price as { money: Money }).money = money("0.01");
+      }, TypeError);
+      assert.equal(price.toString(), "19.99 USD");
+    });
+  });
 });

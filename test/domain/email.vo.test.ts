@@ -20,6 +20,27 @@ describe("Email", () => {
     });
   });
 
+  describe("create - accepted shapes", () => {
+    // The shapes real users type. Each one is a regression guard: tightening
+    // the regex later must not silently start rejecting these.
+    const accepted = [
+      "user+tag@example.com",
+      "first.last@example.co.uk",
+      "user_name@example.com",
+      "user-name@example.com",
+      "user@my-company.com",
+      "123@example.com",
+      "user@mail.sub.example.museum",
+      "a@b.co",
+    ];
+
+    for (const address of accepted) {
+      it(`accepts ${address}`, () => {
+        assert.equal(Email.create(address).value, address);
+      });
+    }
+  });
+
   describe("create - validation", () => {
     it("rejects an empty string", () => {
       assert.throws(() => Email.create(""), {
@@ -75,6 +96,33 @@ describe("Email", () => {
     });
   });
 
+  describe("create - the limits of this validation", () => {
+    it("does not attempt RFC 5322 conformance", () => {
+      // Deliberate: this is a syntax gate, not a deliverability check. Whether
+      // the mailbox exists is settled by sending a confirmation message, so the
+      // regex stays permissive rather than rejecting valid exotica it cannot
+      // enumerate. These shapes are odd, and they pass on purpose.
+      for (const address of [
+        "us,er@example.com",
+        "u!s#r@exa$mple.com",
+        "user@-example.com",
+        '"quoted"@example.com',
+        "üser@ejemplo.com",
+      ]) {
+        assert.equal(Email.create(address).value, address);
+      }
+    });
+
+    it("does not enforce any length limit", () => {
+      // RFC 5321 caps the local part at 64 octets and the whole address at 254.
+      // Neither is checked here: guard that separately before persisting into
+      // a narrower column.
+      const address = `${"a".repeat(300)}@example.com`;
+
+      assert.equal(Email.create(address).value, address);
+    });
+  });
+
   describe("value semantics", () => {
     it("equates two instances built from equivalent inputs", () => {
       assert.equal(
@@ -113,6 +161,18 @@ describe("Email", () => {
 
     it("rejects a leading dot in the local part", () => {
       assert.throws(() => Email.create(".user@example.com"));
+    });
+  });
+
+  describe("immutability", () => {
+    it("freezes the instance", () => {
+      const email = Email.create("user@example.com");
+
+      assert.equal(Object.isFrozen(email), true);
+      assert.throws(() => {
+        (email as { value: string }).value = "other@example.com";
+      }, TypeError);
+      assert.equal(email.value, "user@example.com");
     });
   });
 });

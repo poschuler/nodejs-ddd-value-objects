@@ -6,7 +6,7 @@ type AmountProps = {
 };
 
 export class Amount extends ValueObject {
-  public readonly value: BigNumber;
+  readonly #value: BigNumber;
 
   private constructor(props: AmountProps) {
     super();
@@ -21,7 +21,7 @@ export class Amount extends ValueObject {
       );
     }
 
-    this.value = props.value;
+    this.#value = props.value;
     Object.freeze(this);
   }
 
@@ -37,55 +37,62 @@ export class Amount extends ValueObject {
 
   public round(decimals: number): Amount {
     assertDecimals(decimals);
-    const newValue = this.value.dp(decimals, BigNumber.ROUND_HALF_UP);
+    const newValue = this.#value.dp(decimals, BigNumber.ROUND_HALF_UP);
     return new Amount({ value: newValue });
   }
 
   public add(other: Amount): Amount {
-    const newValue = this.value.plus(other.value);
+    const newValue = this.#value.plus(other.#value);
     return new Amount({ value: newValue });
   }
 
   public subtract(other: Amount): Amount {
-    const newValue = this.value.minus(other.value);
+    const newValue = this.#value.minus(other.#value);
     return new Amount({ value: newValue });
   }
 
-  public times(multiplier: number): Amount {
-    const newValue = this.value.times(multiplier);
+  public times(multiplier: number | string | BigNumber): Amount {
+    const factor = Amount.create(multiplier);
+    const newValue = this.#value.times(factor.#value);
     return new Amount({ value: newValue });
   }
 
   public isZero(): boolean {
-    return this.value.isZero();
+    return this.#value.isZero();
   }
 
   public isNegative(): boolean {
-    return this.value.isLessThan(0);
+    return this.#value.isLessThan(0);
   }
 
   public isPositive(): boolean {
-    return this.value.isGreaterThan(0);
+    return this.#value.isGreaterThan(0);
   }
 
   public toString(): string {
-    return this.value.toFixed();
+    return this.#value.toFixed();
+  }
+
+  public toJSON(): string {
+    return this.toString();
   }
 
   public toFixed(decimals: number): string {
     assertDecimals(decimals);
-    return this.value.toFixed(decimals);
+    return this.#value.toFixed(decimals);
   }
 
   protected equalityComponents(): readonly EqualityComponent[] {
-    return [this.value.toFixed()];
+    return [this.#value.toFixed()];
   }
 }
 
+const MAX_DECIMALS = 20;
+
 function assertDecimals(decimals: number): void {
-  if (!Number.isInteger(decimals) || decimals < 0) {
+  if (!Number.isInteger(decimals) || decimals < 0 || decimals > MAX_DECIMALS) {
     throw new Error(
-      `Invalid decimals: "${decimals}" must be a non-negative integer`,
+      `Invalid decimals: "${decimals}" must be an integer between 0 and ${MAX_DECIMALS}`,
     );
   }
 }

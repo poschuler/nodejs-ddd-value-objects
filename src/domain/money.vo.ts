@@ -1,5 +1,6 @@
 import { Amount } from "./amount.vo";
 import type { Currency } from "./currency.vo";
+import type { CurrencyCode } from "./types/currency.type";
 import { type EqualityComponent, ValueObject } from "./value-object";
 
 type MoneyProps = {
@@ -68,6 +69,13 @@ export class Money extends ValueObject {
 
   public toString(): string {
     return `${this.amount.toFixed(this.currency.decimals)} ${this.currency.code}`;
+  }
+
+  public toJSON(): { amount: string; currency: CurrencyCode } {
+    return {
+      amount: this.amount.toFixed(this.currency.decimals),
+      currency: this.currency.code,
+    };
   }
 
   public isZero(): boolean {

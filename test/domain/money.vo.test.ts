@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import { Amount } from "../../src/domain/amount.vo";
 import { Currency } from "../../src/domain/currency.vo";
 import { Money } from "../../src/domain/money.vo";
+import type { CurrencyCode } from "../../src/domain/types/currency.type";
 
 const usd = Currency.fromCode("USD");
 const eur = Currency.fromCode("EUR");
@@ -214,6 +215,35 @@ describe("Money", () => {
     });
   });
 
+  describe("serialization", () => {
+    it("serializes the amount at currency scale and the currency by code", () => {
+      // The wire form drops `decimals`, which is derivable from the code, and
+      // pads the amount, which Amount.toString on its own would not do.
+      assert.equal(
+        JSON.stringify(Money.create({ amount: "10.5", currency: usd })),
+        '{"amount":"10.50","currency":"USD"}',
+      );
+      assert.equal(
+        JSON.stringify(Money.create({ amount: 1250, currency: jpy })),
+        '{"amount":"1250","currency":"JPY"}',
+      );
+    });
+
+    it("round trips through create", () => {
+      const money = Money.create({ amount: "10.50", currency: usd });
+      const wire = JSON.parse(JSON.stringify(money)) as {
+        amount: string;
+        currency: CurrencyCode;
+      };
+      const restored = Money.create({
+        amount: wire.amount,
+        currency: Currency.fromCode(wire.currency),
+      });
+
+      assert.equal(restored.equals(money), true);
+    });
+  });
+
   describe("value semantics", () => {
     it("equates the same amount in the same currency", () => {
       assert.equal(
@@ -256,6 +286,18 @@ describe("Money", () => {
       const b = Money.create({ amount: 1000, currency: usd });
       assert.notEqual(a, b);
       assert.equal(a.equals(b), true);
+    });
+  });
+
+  describe("immutability", () => {
+    it("freezes the instance", () => {
+      const salary = Money.create({ amount: "10.50", currency: usd });
+
+      assert.equal(Object.isFrozen(salary), true);
+      assert.throws(() => {
+        (salary as { currency: Currency }).currency = eur;
+      }, TypeError);
+      assert.equal(salary.toString(), "10.50 USD");
     });
   });
 });
