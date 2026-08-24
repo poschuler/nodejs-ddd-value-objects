@@ -158,7 +158,7 @@ To set up the project and run the examples:
 ### Prerequisites
 
 - Node.js v24 or higher — the TypeScript configuration extends `@tsconfig/node24`.
-- pnpm (install globally: `npm install -g pnpm`). The project pins `pnpm@10.17.1` via the `packageManager` field.
+- pnpm (install globally: `npm install -g pnpm`). The project pins `pnpm@11.23.0` via the `packageManager` field.
 
 ### Installation
 

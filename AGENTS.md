@@ -16,7 +16,7 @@ self-validation, immutability, value equality, composition.
 | `pnpm test:coverage` | Same, with `--experimental-test-coverage` |
 | `pnpm lint` / `pnpm lint:fix` | Biome check over `src` and `test` |
 
-Package manager is pnpm (`pnpm@10.17.1`). Never use npm or yarn here.
+Package manager is pnpm (`pnpm@11.23.0`). Never use npm or yarn here.
 
 ## Local setup
 
