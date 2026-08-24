@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type { EqualityComponent } from "../../src/domain/value-object";
-import { ValueObject } from "../../src/domain/value-object";
+import type { EqualityComponent } from "../../src/domain/value-object.js";
+import { ValueObject } from "../../src/domain/value-object.js";
 
 // --- Test doubles: exercise the base contract without coupling to a concrete VO ---
 

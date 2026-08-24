@@ -1,9 +1,9 @@
-import { Amount } from "./domain/amount.vo";
-import { Currency } from "./domain/currency.vo";
-import { Email } from "./domain/email.vo";
-import { Money } from "./domain/money.vo";
-import { Price } from "./domain/price.vo";
-import type { CurrencyCode } from "./domain/types/currency.type";
+import { Amount } from "./domain/amount.vo.js";
+import { Currency } from "./domain/currency.vo.js";
+import { Email } from "./domain/email.vo.js";
+import { Money } from "./domain/money.vo.js";
+import { Price } from "./domain/price.vo.js";
+import type { CurrencyCode } from "./domain/types/currency.type.js";
 
 console.log("--- Email Value Object ---");
 

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { Email } from "../../src/domain/email.vo";
+import { Email } from "../../src/domain/email.vo.js";
 
 describe("Email", () => {
   describe("create - normalization", () => {

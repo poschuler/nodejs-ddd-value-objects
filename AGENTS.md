@@ -50,6 +50,13 @@ architecture/                Structurizr workspace and exported diagrams
 
 ## Conventions
 
+- **Modules**: the package is ESM (`"type": "module"`) compiled with `module: nodenext`.
+  Relative imports carry a `.js` extension even though the file on disk is `.ts` — the
+  specifier names the emitted file, not the source, and `import type` is no exception.
+  Omitting it is `TS2835`. `tsx` resolves extensionless specifiers anyway, so a missing
+  one survives `pnpm dev` and only surfaces at `pnpm typecheck` or `pnpm build`; run one
+  of those before calling an import done. There is no `require`, `__dirname` or
+  `module.exports` anywhere in `src/` or `test/`.
 - **Construction**: constructors are `private`. Every value object is built through a
   static factory — `create()`, or a domain-specific one such as `Currency.fromCode()` and
   `Money.zero()`.
@@ -64,7 +71,10 @@ architecture/                Structurizr workspace and exported diagrams
   own: `Amount` keeps its `BigNumber` in a `#private` field, unreachable by any cast.
   TypeScript's `private` would not do — it is erased at compile time and the object stays
   writable at runtime. Every other field is `public readonly`. Operations (`add`, `subtract`,
-  `times`, `round`) return a new instance and never mutate the receiver.
+  `times`, `round`) return a new instance and never mutate the receiver. Every module is
+  strict — ESM by definition, and `alwaysStrict` from the base tsconfig before that — so a
+  write to a frozen field throws `TypeError` instead of passing silently. The `immutability`
+  suites assert that throw, so a demo or test that writes to a frozen field must catch it.
 - **Equality**: subclasses implement `protected equalityComponents(): readonly EqualityComponent[]`.
   The base `equals()` compares constructors first, then components pairwise — nested value
   objects recurse, `Date` compares by timestamp, everything else uses `===`.

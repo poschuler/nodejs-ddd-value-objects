@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { Currency } from "../../src/domain/currency.vo";
-import type { CurrencyCode } from "../../src/domain/types/currency.type";
-import { currencyDecimals } from "../../src/domain/types/currency.type";
+import { Currency } from "../../src/domain/currency.vo.js";
+import type { CurrencyCode } from "../../src/domain/types/currency.type.js";
+import { currencyDecimals } from "../../src/domain/types/currency.type.js";
 
 describe("Currency", () => {
   describe("fromCode", () => {

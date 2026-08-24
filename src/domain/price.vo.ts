@@ -1,5 +1,5 @@
-import type { Money } from "./money.vo";
-import { type EqualityComponent, ValueObject } from "./value-object";
+import type { Money } from "./money.vo.js";
+import { type EqualityComponent, ValueObject } from "./value-object.js";
 
 type PriceProps = {
   readonly money: Money;

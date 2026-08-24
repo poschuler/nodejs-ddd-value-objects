@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { type EqualityComponent, ValueObject } from "./value-object";
+import { type EqualityComponent, ValueObject } from "./value-object.js";
 
 type AmountProps = {
   readonly value: BigNumber;

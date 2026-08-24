@@ -1,7 +1,7 @@
-import { Amount } from "./amount.vo";
-import type { Currency } from "./currency.vo";
-import type { CurrencyCode } from "./types/currency.type";
-import { type EqualityComponent, ValueObject } from "./value-object";
+import { Amount } from "./amount.vo.js";
+import type { Currency } from "./currency.vo.js";
+import type { CurrencyCode } from "./types/currency.type.js";
+import { type EqualityComponent, ValueObject } from "./value-object.js";
 
 type MoneyProps = {
   readonly amount: Amount;

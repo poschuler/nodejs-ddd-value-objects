@@ -14,7 +14,7 @@ The primary goal is to illustrate best practices for designing robust and mainta
 
 Value Objects are objects that measure, quantify, or describe a thing in the domain. They are characterized by:
 
-- **Immutability**: Once created, their state cannot change. Every concrete value object calls `Object.freeze(this)` in its constructor. Because `freeze` is shallow, a field holding a mutable object needs more than that: `Amount` keeps its `BigNumber` in a `#private` field, so no cast can reach it and mutate the value in place. TypeScript's `private` would not be enough — it is erased at compile time.
+- **Immutability**: Once created, their state cannot change. Every concrete value object calls `Object.freeze(this)` in its constructor. Because `freeze` is shallow, a field holding a mutable object needs more than that: `Amount` keeps its `BigNumber` in a `#private` field, so no cast can reach it and mutate the value in place. TypeScript's `private` would not be enough — it is erased at compile time. Every module is strict, so a write to a frozen field throws a `TypeError` rather than passing silently.
 - **Value-Based Equality**: Two value objects are considered equal if all their constituent attributes are equal, not by their memory reference.
 - **Self-Validation**: They enforce their own invariants upon creation. Construction goes through a static factory, so an instance that exists is always valid.
 - **No Side Effects**: Operations on value objects return new instances rather than modifying the original.
@@ -145,6 +145,7 @@ The following diagrams are defined in the workspace:
 
 - **TypeScript**: For type safety and better code organization.
 - **Node.js**: The JavaScript runtime environment.
+- **ESM**: the package is native ECMAScript Modules (`"type": "module"`), compiled with `module: nodenext`. Relative imports carry a `.js` extension even though the source file is `.ts` — the specifier names the emitted file, not the source.
 - **pnpm**: A fast, disk space efficient package manager.
 - **bignumber.js**: A JavaScript library for arbitrary-precision decimal and non-decimal arithmetic.
 - **tsx**: A TypeScript execution environment for Node.js, enabling direct execution of TypeScript files.

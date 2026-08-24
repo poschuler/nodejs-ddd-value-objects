@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { Currency } from "../../src/domain/currency.vo";
-import { Money } from "../../src/domain/money.vo";
-import { Price } from "../../src/domain/price.vo";
+import { Currency } from "../../src/domain/currency.vo.js";
+import { Money } from "../../src/domain/money.vo.js";
+import { Price } from "../../src/domain/price.vo.js";
 
 const usd = Currency.fromCode("USD");
 const eur = Currency.fromCode("EUR");

@@ -1,5 +1,5 @@
-import { type CurrencyCode, currencyDecimals } from "./types/currency.type";
-import { type EqualityComponent, ValueObject } from "./value-object";
+import { type CurrencyCode, currencyDecimals } from "./types/currency.type.js";
+import { type EqualityComponent, ValueObject } from "./value-object.js";
 
 export class Currency extends ValueObject {
   public readonly code: CurrencyCode;

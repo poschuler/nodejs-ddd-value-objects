@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import BigNumber from "bignumber.js";
-import { Amount } from "../../src/domain/amount.vo";
+import { Amount } from "../../src/domain/amount.vo.js";
 
 describe("Amount", () => {
   describe("create", () => {

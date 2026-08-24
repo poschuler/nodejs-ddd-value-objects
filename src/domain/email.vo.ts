@@ -1,4 +1,4 @@
-import { type EqualityComponent, ValueObject } from "./value-object";
+import { type EqualityComponent, ValueObject } from "./value-object.js";
 
 export class Email extends ValueObject {
   public readonly value: string;
