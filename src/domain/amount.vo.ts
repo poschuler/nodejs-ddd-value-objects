@@ -36,6 +36,7 @@ export class Amount extends ValueObject {
   }
 
   public round(decimals: number): Amount {
+    assertDecimals(decimals);
     const newValue = this.value.dp(decimals, BigNumber.ROUND_HALF_UP);
     return new Amount({ value: newValue });
   }
@@ -72,10 +73,19 @@ export class Amount extends ValueObject {
   }
 
   public toFixed(decimals: number): string {
+    assertDecimals(decimals);
     return this.value.toFixed(decimals);
   }
 
   protected equalityComponents(): readonly EqualityComponent[] {
     return [this.value.toFixed()];
+  }
+}
+
+function assertDecimals(decimals: number): void {
+  if (!Number.isInteger(decimals) || decimals < 0) {
+    throw new Error(
+      `Invalid decimals: "${decimals}" must be a non-negative integer`,
+    );
   }
 }

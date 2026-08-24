@@ -138,6 +138,17 @@ describe("Amount", () => {
       assert.equal(original.toString(), "2.345");
       assert.notEqual(rounded, original);
     });
+
+    it("rejects decimals that are not a non-negative integer", () => {
+      // BigNumber is an implementation detail of Amount, so its own
+      // "[BigNumber Error] ..." must never reach the caller.
+      assert.throws(() => Amount.create("2.345").round(-1), {
+        message: 'Invalid decimals: "-1" must be a non-negative integer',
+      });
+      assert.throws(() => Amount.create("2.345").round(1.5), {
+        message: 'Invalid decimals: "1.5" must be a non-negative integer',
+      });
+    });
   });
 
   describe("predicates", () => {
@@ -176,6 +187,15 @@ describe("Amount", () => {
     it("toFixed rounds half away from zero", () => {
       // (1.005).toFixed(2) === "1.00" with native numbers
       assert.equal(Amount.create("1.005").toFixed(2), "1.01");
+    });
+
+    it("toFixed rejects decimals that are not a non-negative integer", () => {
+      assert.throws(() => Amount.create("1.5").toFixed(-1), {
+        message: 'Invalid decimals: "-1" must be a non-negative integer',
+      });
+      assert.throws(() => Amount.create("1.5").toFixed(1.5), {
+        message: 'Invalid decimals: "1.5" must be a non-negative integer',
+      });
     });
   });
 
