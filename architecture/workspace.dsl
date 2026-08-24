@@ -31,6 +31,10 @@ workspace "ValueObjects Node.js implementation" {
                 currencyVO = component "Currency" "Value object representing currency code." {
                     tags "value-object" "currency"
                 }
+
+                priceVO = component "Price" "Value object representing non-negative Money: what something costs." {
+                    tags "value-object" "price"
+                }
             }
         }
 
@@ -38,9 +42,12 @@ workspace "ValueObjects Node.js implementation" {
         moneyVO -> valueObject "inherits from"
         currencyVO -> valueObject "inherits from"
         amountVO -> valueObject "inherits from"
+        priceVO -> valueObject "inherits from"
 
         moneyVO -> amountVO "is composed of"
         moneyVO -> currencyVO "is composed of"
+
+        priceVO -> moneyVO "is composed of"
 
         amountVO -> bigNumber "uses for high-precision arithmetic" {
             tags "external-dependency"
@@ -55,7 +62,14 @@ workspace "ValueObjects Node.js implementation" {
 
         component domainLayer "Domain-Layer-Overview"{
             include *
-            autolayout
+            // Kept out on purpose: as an element outside both boundaries, autolayout
+            // places it where the software system boundary is later drawn over it.
+            // The dependency is shown in full in the Money-Value-Object view.
+            exclude bigNumber
+            // Explicit parameters: a bare `autolayout` lets stale values cached in
+            // workspace.json win, and tight separation is what lets the boundary
+            // crowd its neighbours.
+            autolayout lr 300 300
 
         }
         
@@ -73,6 +87,15 @@ workspace "ValueObjects Node.js implementation" {
             include amountVO
             include currencyVO
             include bigNumber
+
+            autolayout lr
+
+        }
+
+        component domainLayer "Price-Value-Object"{
+            include valueObject
+            include priceVO
+            include moneyVO
 
             autolayout lr
 
@@ -133,6 +156,12 @@ workspace "ValueObjects Node.js implementation" {
             element "currency" {
                 shape RoundedBox
                 background #5e35b1
+                color "#ffffff"
+            }
+
+            element "price" {
+                shape RoundedBox
+                background #7e57c2
                 color "#ffffff"
             }
 
