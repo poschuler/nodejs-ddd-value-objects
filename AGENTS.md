@@ -79,6 +79,12 @@ architecture/                Structurizr workspace and exported diagrams
   `test/domain/<name>.test.ts`. Class names are the domain term, never suffixed with `VO`.
 - **Tests**: `node:test` with `describe`/`it` and `node:assert/strict`. Test names, comments
   and identifiers are written in English.
+- **Demo**: `src/app.ts` is executable documentation — every `console.log` carries a `// ->`
+  comment with the exact line it prints. Changing one means re-running `pnpm start` and
+  updating the comment: a stale `// ->` is a lie the reader has no way to catch. When the
+  point of a snippet is something a tool flags — a number literal that loses precision, say —
+  suppress it with a stated reason instead of rewriting the example around the tool; the
+  suppression is part of the lesson.
 
 ## Invariants worth knowing
 

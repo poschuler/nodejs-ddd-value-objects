@@ -38,8 +38,9 @@ of decimal places its amounts are expressed in.
 _Avoid_: currency code, denomination, ISO code
 
 **Money**:
-An Amount denominated in a Currency, expressed at that currency's decimal precision.
-Arithmetic between different currencies is not a valid operation.
+An Amount denominated in a Currency, expressed at that currency's decimal precision —
+an amount that arrives with more decimals is rounded half up. Arithmetic between
+different currencies is not a valid operation.
 _Avoid_: cash, monetary value, funds
 
 **Price**:
