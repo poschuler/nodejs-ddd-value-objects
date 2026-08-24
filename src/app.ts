@@ -1,9 +1,8 @@
 import { Amount } from "./domain/amount.vo.js";
 import { Currency } from "./domain/currency.vo.js";
 import { Email } from "./domain/email.vo.js";
-import { Money } from "./domain/money.vo.js";
+import { Money, type MoneyJSON } from "./domain/money.vo.js";
 import { Price } from "./domain/price.vo.js";
-import type { CurrencyCode } from "./domain/types/currency.type.js";
 
 console.log("--- Email Value Object ---");
 
@@ -127,7 +126,7 @@ console.log(`usd.equals(eur): ${usd.equals(eur)}`); // -> false
 
 // 5. A code outside the set has no instance to return
 try {
-  Currency.fromCode("XYZ" as CurrencyCode);
+  Currency.fromCode("XYZ");
 } catch (error) {
   console.log(`Unknown code: ${(error as Error).message}`); // -> Unsupported currency code: XYZ
 }
@@ -233,11 +232,10 @@ console.log(`JSON.stringify(): ${JSON.stringify(totalPayout)}`); // -> {"amount"
 
 // 3. Nested in a payload it serialises just the same
 const order = { total: totalPayout, unitPrice };
-console.log(`Nested: ${JSON.stringify(order)}`); // -> {"total":{"amount":"1250.00","currency":"USD"},"unitPrice":{"money":{"amount":"19.99","currency":"USD"}}}
+console.log(`Nested: ${JSON.stringify(order)}`); // -> {"total":{"amount":"1250.00","currency":"USD"},"unitPrice":{"amount":"19.99","currency":"USD"}}
 
 // 4. And the factories read it back into an equal value
-type MoneyWire = { amount: string; currency: CurrencyCode };
-const wire = JSON.parse(JSON.stringify(totalPayout)) as MoneyWire;
+const wire = JSON.parse(JSON.stringify(totalPayout)) as MoneyJSON;
 const restored = Money.create({
   amount: wire.amount,
   currency: Currency.fromCode(wire.currency),

@@ -64,8 +64,28 @@ architecture/                Structurizr workspace and exported diagrams
   with a message naming the offending value. An instance that exists is always valid.
   Operation arguments are validated too — `Amount.round()` and `toFixed()` reject decimals
   outside `0..MAX_DECIMALS`, so neither a `[BigNumber Error]` nor the heap exhaustion that
-  `toFixed(1e9)` would cause ever reaches the caller. `BigNumber` is an implementation detail
-  of `Amount`, not part of its contract.
+  `toFixed(1e9)` would cause ever reaches the caller. That makes `BigNumber` an implementation
+  detail of `Amount` on the way out, but not on the way in: its parser is what decides which
+  strings `create()` accepts, so `"0x1f"` is a valid amount and `"1,000"` is not. Nobody chose
+  that; the `limits of this validation` suite in `amount.vo.test.ts` pins the surface rather
+  than hiding it. Closing it would mean checking the shape of the string before BigNumber ever
+  sees it — worth doing in a service fed by strangers, deliberately not done here, where naming
+  the leak teaches more than papering over it.
+- **Boundaries**: a signature that takes a primitive is a boundary and validates it; a
+  signature that takes a value object trusts it. Constructors are private, so an `Amount`
+  or a `Currency` in hand has already been through its factory and cannot be invalid.
+  That one rule decides where a check belongs. `Amount.create()`, `Amount.round()`,
+  `Amount.toFixed()` and `Currency.fromCode()` take primitives, so each rejects bad input
+  as above. `Currency.fromCode()` takes a plain `string` rather than `CurrencyCode`:
+  narrowing the parameter would only push callers to cast, and the cast is exactly the
+  check the guard is there to perform. `Money.create()` is both at once — it validates the
+  amount, propagating the errors of `Amount.create()` unchanged, and trusts the currency.
+  `Money.zero()`, `Price.create()` and `Money.add()` / `subtract()` take value objects and
+  never re-check them; `add()` still enforces the domain rule that currencies must match,
+  which is a different thing from validating an argument. Passing `undefined` in from
+  untyped JavaScript throws a bare `TypeError` from inside: that is a caller bug, not a
+  domain case, and it is deliberately not guarded. Defending every argument against the
+  type system would bury the invariants that actually matter.
 - **Immutability**: every concrete value object calls `Object.freeze(this)` at the end of its
   constructor. `freeze` is shallow, so a field holding a mutable object is not enough on its
   own: `Amount` keeps its `BigNumber` in a `#private` field, unreachable by any cast.
@@ -80,11 +100,19 @@ architecture/                Structurizr workspace and exported diagrams
   objects recurse, `Date` compares by timestamp, everything else uses `===`.
 - **Money arithmetic**: all decimal maths goes through `BigNumber.js`. `Amount` exposes its
   equality component as a fixed string so representation never affects equality.
-- **Serialisation**: a value object that hides its representation implements `toJSON()`, since
-  `JSON.stringify` only sees own enumerable properties and would otherwise emit `{}`. It
-  returns a form the factories can read back, which is not the same as `toString()`: that one
-  is for humans and stops round-tripping as soon as a value object composes others
-  (`"10.50 USD"` goes out, but no factory takes it in).
+- **Serialisation**: a value object implements `toJSON()` when `JSON.stringify` would
+  otherwise put the wrong thing on the wire — either because the representation is hidden
+  and the default is `{}` (`Amount`, whose `#value` is not an own property), or because its
+  own fields would ship an internal shape (`Price`, where the `money` field would otherwise
+  become part of the public contract and change the day it is renamed). What comes out is a
+  form the factories can read back, which is not the same as `toString()`: that one is for
+  humans and stops round-tripping as soon as a value object composes others (`"10.50 USD"`
+  goes out, but no factory takes it in). `Money` and `Price` share one form, exported as
+  `MoneyJSON`: the amount padded to the currency scale, and the currency as its code alone —
+  `decimals` is left out because it is derived from that code, and shipping it would invite a
+  caller to contradict the currency table. Sharing that form means the wire carries the value
+  and not the type: a payload cannot say whether it came from a `Money` or a `Price`, so
+  reading one back goes through whichever factory the caller intends.
 - **Naming**: value object files are `*.vo.ts`, shared types are `*.type.ts`, test files are
   `test/domain/<name>.test.ts`. Class names are the domain term, never suffixed with `VO`.
 - **Tests**: `node:test` with `describe`/`it` and `node:assert/strict`. Test names, comments
@@ -101,13 +129,32 @@ architecture/                Structurizr workspace and exported diagrams
 - `Amount` accepts negative values — it only rejects `NaN` and non-finite input. Non-negativity
   is `Price`'s invariant, not `Amount`'s. The two defects are named apart (`"is not a number"`
   vs `"is not a finite number"`) from every entry point: `create()` and the operators alike.
-- `Amount.times()` takes `number | string | BigNumber`. A `number` factor has already been
-  through binary floating point before the call, so a string is the only way to hand it an
-  exact one — the type cannot rescue a value that arrived corrupted.
+- `Amount` bounds the scale but not the magnitude. `round()` and `toFixed()` cap decimals at
+  `MAX_DECIMALS`, yet nothing caps how large a value may be: `"1e10000000"` is still finite to
+  BigNumber, and every `toString()` — and so every `equals()`, which compares fixed strings —
+  materialises all ten million digits. Acceptable in a teaching domain; a service taking
+  amounts from strangers would bound both.
+- `Amount.create()` and `Amount.times()` take `number | string`. A `number` factor has already
+  been through binary floating point before the call, so a string is the only way to hand it an
+  exact one — the type cannot rescue a value that arrived corrupted. `BigNumber` is kept out of
+  both signatures on purpose: a caller holding one passes `bn.toFixed()`, exact and the same form
+  `Amount` uses as its equality component, so the library never crosses a public boundary.
+- `BigNumber` can fail three ways, and any operation added to `Amount` has to answer for all
+  three: it can return `NaN` (`0/0`), it can return a non-finite value (`10/0`, or a `times()`
+  that overflows two finite operands), or it can throw a `[BigNumber Error]` of its own
+  (`exponentiatedBy(0.5)`). The private constructor catches the first two for every operator at
+  once — which is why its `NaN` guard stays although no current path reaches it. The third has
+  no such gate: it is headed off where the argument is validated, the way `assertDecimals()`
+  does for `round()` and `toFixed()`.
 - `Money` rounds its amount to the currency's decimal places at construction (`JPY` → 0, others → 2).
 - `Money.add()` / `subtract()` throw when currencies differ.
 - `Currency.All` is a frozen list built from `currencyDecimals`; `fromCode()` returns the shared
   instance, so currencies are interned.
+- `Currency.fromCode()` validates without normalising. ISO 4217 codes are uppercase, so `"usd"`
+  is a malformed code rather than the same code written differently, and accepting it would
+  hide a broken payload. `Email` is the opposite case: it normalises before validating, because
+  two addresses differing only in case really are one address. Normalising is part of a
+  boundary's job only when the domain says the two forms mean the same thing.
 
 ## Collaboration model
 

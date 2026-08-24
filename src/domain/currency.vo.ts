@@ -18,7 +18,7 @@ export class Currency extends ValueObject {
     ),
   );
 
-  public static fromCode(code: CurrencyCode): Currency {
+  public static fromCode(code: string): Currency {
     const currency = Currency.All.find((c) => c.code === code);
 
     if (!currency) throw new Error(`Unsupported currency code: ${code}`);

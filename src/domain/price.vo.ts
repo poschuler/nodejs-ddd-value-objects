@@ -1,4 +1,4 @@
-import type { Money } from "./money.vo.js";
+import type { Money, MoneyJSON } from "./money.vo.js";
 import { type EqualityComponent, ValueObject } from "./value-object.js";
 
 type PriceProps = {
@@ -23,6 +23,10 @@ export class Price extends ValueObject {
 
   public toString(): string {
     return this.money.toString();
+  }
+
+  public toJSON(): MoneyJSON {
+    return this.money.toJSON();
   }
 
   protected equalityComponents(): readonly EqualityComponent[] {

@@ -13,6 +13,11 @@ type CreateMoneyProps = {
   readonly currency: Currency;
 };
 
+export type MoneyJSON = {
+  readonly amount: string;
+  readonly currency: CurrencyCode;
+};
+
 export class Money extends ValueObject {
   public readonly amount: Amount;
 
@@ -71,11 +76,7 @@ export class Money extends ValueObject {
     return `${this.amount.toFixed(this.currency.decimals)} ${this.currency.code}`;
   }
 
-  // The wire form the factories can read back. Unlike toString(), which is
-  // for humans, this pads the amount to the currency scale and sends the
-  // currency as its code alone: decimals is derived from that code, so
-  // shipping it would invite a caller to contradict the currency table.
-  public toJSON(): { amount: string; currency: CurrencyCode } {
+  public toJSON(): MoneyJSON {
     return {
       amount: this.amount.toFixed(this.currency.decimals),
       currency: this.currency.code,

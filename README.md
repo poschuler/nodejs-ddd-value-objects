@@ -16,7 +16,7 @@ Value Objects are objects that measure, quantify, or describe a thing in the dom
 
 - **Immutability**: Once created, their state cannot change. Every concrete value object calls `Object.freeze(this)` in its constructor. Because `freeze` is shallow, a field holding a mutable object needs more than that: `Amount` keeps its `BigNumber` in a `#private` field, so no cast can reach it and mutate the value in place. TypeScript's `private` would not be enough — it is erased at compile time. Every module is strict, so a write to a frozen field throws a `TypeError` rather than passing silently.
 - **Value-Based Equality**: Two value objects are considered equal if all their constituent attributes are equal, not by their memory reference.
-- **Self-Validation**: They enforce their own invariants upon creation. Construction goes through a static factory, so an instance that exists is always valid.
+- **Self-Validation**: They enforce their own invariants upon creation. Construction goes through a static factory, so an instance that exists is always valid. Validation happens at the boundary: a factory taking a primitive (`Amount.create()`, `Currency.fromCode()`) checks its input and throws a domain `Error` naming the offending value; one taking a value object trusts it, because a private constructor means it could not have been built any other way.
 - **No Side Effects**: Operations on value objects return new instances rather than modifying the original.
 
 ### 2. The `ValueObject` Abstract Class
@@ -42,10 +42,11 @@ The project includes several examples of practical value objects:
 
 - Represents a numeric quantity, with no currency attached.
 - Utilizes `bignumber.js` to handle precise decimal arithmetic, avoiding common floating-point inaccuracies.
-- Accepts `number`, `string` or `BigNumber` input, and rejects both `NaN` and non-finite values, naming each defect for what it is.
+- Accepts `number` or `string` input, and rejects both `NaN` and non-finite values, naming each defect for what it is. `BigNumber` is deliberately not in the signature: a caller holding one passes `bn.toFixed()`, which is exact and is the same form `Amount` uses as its own equality component.
+- What counts as a valid string is decided by `bignumber.js`, not by `Amount`: `"0x1f"` is `31`, `"0b101"` is `5`, `"0xff.8"` is `255.5`, and surrounding whitespace is ignored — while `"1,000"`, the grouping a person would actually type, is rejected. The library is an implementation detail on the way out, since its errors never surface, but not on the way in, where its parser decides which strings are numbers at all. The `limits of this validation` suite records that surface instead of hiding it.
 - Negative values are allowed — non-negativity is `Price`'s invariant, not this one's.
-- Provides arithmetic operations (`add()`, `subtract()`, `times()`, `round()`), predicates (`isZero()`, `isNegative()`, `isPositive()`) and formatting helpers (`toString()`, `toFixed()`, `toJSON()`). `round()` and `toFixed()` reject any scale outside the supported range (0 to 20 decimal places), so neither a `bignumber.js` error nor the heap exhaustion that an enormous scale would cause ever surfaces.
-- `times()` accepts a `number`, `string` or `BigNumber` factor. A `number` has already passed through binary floating point by the time it arrives, so a string is the only way to give it an exact one.
+- Provides arithmetic operations (`add()`, `subtract()`, `times()`, `round()`), predicates (`isZero()`, `isNegative()`, `isPositive()`) and formatting helpers (`toString()`, `toFixed()`, `toJSON()`). `round()` and `toFixed()` reject any scale outside the supported range (0 to 20 decimal places), so neither a `bignumber.js` error nor the heap exhaustion that an enormous scale would cause ever surfaces. The scale is bounded; the magnitude is not — `"1e10000000"` is still a finite `BigNumber`, and every `toString()` (and so every `equals()`, which compares fixed strings) materialises all ten million digits.
+- `times()` accepts a `number` or `string` factor. A `number` has already passed through binary floating point by the time it arrives, so a string is the only way to give it an exact one.
 - Implements `toJSON()`, because the `#private` field is invisible to `JSON.stringify`: without the hook, an `Amount` would serialise to `{}` and lose its value silently.
 - Exposes its equality component as a fixed-notation string, so `1.50` and `1.5` compare as equal.
 
@@ -54,6 +55,7 @@ The project includes several examples of practical value objects:
 - Represents a currency code (e.g. `"USD"`, `"EUR"`), along with the number of decimal places its amounts are expressed in.
 - Ensures that only predefined, supported currency codes can be used. The supported set lives in `src/domain/types/currency.type.ts` as the `currencyDecimals` map — currently `PEN`, `USD` and `EUR` with 2 decimals, and `JPY` with 0.
 - Exposes `Currency.All`, a frozen list of every supported currency, and the static factory `Currency.fromCode()`, which returns the shared instance for a code.
+- `fromCode()` takes a plain `string` rather than a `CurrencyCode`, because it is the boundary where a code arriving from JSON, an env var or an HTTP payload enters the domain — narrowing the parameter would only push callers to cast past the very check the guard is there to perform. It validates without normalizing: ISO 4217 codes are uppercase, so `"usd"` is a malformed code rather than the same code written differently, and accepting it would hide a broken payload. `Email` is the opposite case and normalizes before validating, because two addresses differing only in case really are one address.
 
 ### `Money` (`src/domain/money.vo.ts`)
 
@@ -62,12 +64,14 @@ The project includes several examples of practical value objects:
 - Rounds its amount to the currency's decimal places at construction, so `Money` is always expressed at its currency's precision.
 - Includes business logic, such as ensuring that `add()` and `subtract()` are only performed between `Money` objects of the same currency.
 - Provides static factory methods — `create()`, which accepts an `Amount`, a `number` or a `string`, and `zero()` for creating zero-value money instances.
-- Implements `toJSON()`, which emits `{ amount, currency }` with the amount padded to the currency's scale and the currency as its code alone. Unlike `toString()`, that form round-trips back through `Money.create()`; `decimals` is left out because it is derived from the code.
+- Implements `toJSON()`, which emits `{ amount, currency }` with the amount padded to the currency's scale and the currency as its code alone. Unlike `toString()`, that form round-trips back through `Money.create()`; `decimals` is left out because it is derived from the code, and shipping it would invite a caller to contradict the currency table. The shape is exported as `MoneyJSON`, so the method, `Price`, the demo and the tests all name it once instead of spelling it out.
 
 ### `Price` (`src/domain/price.vo.ts`)
 
 - A refinement of `Money`: the amount of money something costs.
 - Wraps a `Money` instance and rejects negative amounts, demonstrating how a value object can narrow another one by adding an invariant rather than duplicating its behaviour.
+- Implements `toJSON()` by delegating to the `Money` it wraps, so the wire form stays flat — `{"amount":"19.99","currency":"USD"}` rather than `{"money":{...}}`. Serialising the `money` field as-is would put an internal field name into the public contract, where renaming it later would break every consumer.
+- The consequence is deliberate: a `Price` and the `Money` it wraps serialise identically. The wire form carries the value, not the type — a payload cannot say which one it came from, which is why reading it back goes through the factory the caller intends (`Price.create(Money.create(...))`).
 
 ## Project Structure
 

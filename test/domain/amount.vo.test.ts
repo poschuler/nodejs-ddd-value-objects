@@ -13,8 +13,11 @@ describe("Amount", () => {
       assert.equal(Amount.create("42.5").toString(), "42.5");
     });
 
-    it("accepts a BigNumber", () => {
-      assert.equal(Amount.create(new BigNumber("42.5")).toString(), "42.5");
+    it("takes a BigNumber from outside through its fixed string", () => {
+      // create() no longer accepts one: toFixed() is the exact handoff, the
+      // same form Amount already uses as its own equality component.
+      const external = new BigNumber("42.5");
+      assert.equal(Amount.create(external.toFixed()).toString(), "42.5");
     });
 
     it("accepts negative values", () => {
@@ -64,6 +67,53 @@ describe("Amount", () => {
     });
   });
 
+  describe("the limits of this validation", () => {
+    // Amount checks that its input is a finite number. It does not define what
+    // a number looks like — bignumber.js does, and its parser is wider than
+    // plain decimal notation. These shapes are odd, and they pass.
+
+    it("accepts any base notation bignumber.js accepts", () => {
+      assert.equal(Amount.create("0x1f").toString(), "31");
+      assert.equal(Amount.create("0b101").toString(), "5");
+      assert.equal(Amount.create("0o17").toString(), "15");
+      // Hexadecimal with a fractional part, which no monetary input ever is.
+      assert.equal(Amount.create("0xff.8").toString(), "255.5");
+    });
+
+    it("ignores whitespace around the value", () => {
+      assert.equal(Amount.create("  10  ").toString(), "10");
+      assert.equal(Amount.create("\t10\n").toString(), "10");
+    });
+
+    it("accepts abbreviated decimal shapes", () => {
+      assert.equal(Amount.create(".5").toString(), "0.5");
+      assert.equal(Amount.create("5.").toString(), "5");
+      assert.equal(Amount.create("+5").toString(), "5");
+      assert.equal(Amount.create("00012").toString(), "12");
+    });
+
+    it("still rejects the grouping a person would type", () => {
+      // The contrast worth noticing: "0xff.8" is a valid amount here and
+      // "1,000" is not. The library is an implementation detail on the way
+      // out — its errors never surface — but not on the way in, where its
+      // parser is what decides which strings are numbers at all.
+      assert.throws(() => Amount.create("1,000"), {
+        message: 'Invalid amount: "1,000" is not a number',
+      });
+      assert.throws(() => Amount.create("1 000"), {
+        message: 'Invalid amount: "1 000" is not a number',
+      });
+    });
+
+    it("bounds the scale but not the magnitude", () => {
+      // round() and toFixed() refuse a scale beyond MAX_DECIMALS, yet nothing
+      // bounds how large a value may be. BigNumber stays finite far past this,
+      // and every toString() — and so every equals(), which compares fixed
+      // strings — has to materialise every digit.
+      assert.equal(Amount.create("1e1000").toString().length, 1001);
+    });
+  });
+
   describe("arithmetic", () => {
     it("adds two amounts", () => {
       assert.equal(
@@ -102,9 +152,10 @@ describe("Amount", () => {
       assert.equal(Amount.create("100").times("0.3").toString(), "30");
     });
 
-    it("accepts a BigNumber factor", () => {
+    it("takes a BigNumber factor through its fixed string", () => {
+      const factor = new BigNumber("0.3");
       assert.equal(
-        Amount.create("100").times(new BigNumber("0.3")).toString(),
+        Amount.create("100").times(factor.toFixed()).toString(),
         "30",
       );
     });

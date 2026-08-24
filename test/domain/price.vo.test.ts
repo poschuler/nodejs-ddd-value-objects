@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { Currency } from "../../src/domain/currency.vo.js";
-import { Money } from "../../src/domain/money.vo.js";
+import { Money, type MoneyJSON } from "../../src/domain/money.vo.js";
 import { Price } from "../../src/domain/price.vo.js";
 
 const usd = Currency.fromCode("USD");
@@ -57,6 +57,50 @@ describe("Price", () => {
     it("delegates the formatting to Money", () => {
       const amount = money("19.99");
       assert.equal(Price.create(amount).toString(), amount.toString());
+    });
+  });
+
+  describe("serialization", () => {
+    it("emits the money it wraps, not its own field name", () => {
+      // Without toJSON(), JSON.stringify walks the own enumerable `money`
+      // field and emits {"money":{...}} — a wire form shaped by an internal
+      // field name, which would change the day that field is renamed.
+      assert.equal(
+        JSON.stringify(Price.create(money("19.99"))),
+        '{"amount":"19.99","currency":"USD"}',
+      );
+    });
+
+    it("inherits the currency scale of the money it wraps", () => {
+      assert.equal(
+        JSON.stringify(Price.create(money(1000, jpy))),
+        '{"amount":"1000","currency":"JPY"}',
+      );
+    });
+
+    it("is indistinguishable from the Money it wraps", () => {
+      // The wire form carries the value, not the type. A payload cannot say
+      // whether it came from a Money or a Price, which is why reading one
+      // back has to go through the factory the caller intends.
+      const listed = money("19.99");
+
+      assert.equal(
+        JSON.stringify(Price.create(listed)),
+        JSON.stringify(listed),
+      );
+    });
+
+    it("round trips through the factories", () => {
+      const price = Price.create(money("19.99"));
+      const wire = JSON.parse(JSON.stringify(price)) as MoneyJSON;
+      const restored = Price.create(
+        Money.create({
+          amount: wire.amount,
+          currency: Currency.fromCode(wire.currency),
+        }),
+      );
+
+      assert.equal(restored.equals(price), true);
     });
   });
 

@@ -15,9 +15,10 @@ describe("Currency", () => {
     });
 
     it("throws for an unsupported code", () => {
-      // The cast crosses the type boundary on purpose: this guard exists for
-      // callers coming from untyped input (JSON, env vars, HTTP payloads).
-      assert.throws(() => Currency.fromCode("XXX" as CurrencyCode), {
+      // No cast needed: fromCode takes a string because a string is what
+      // crosses the boundary — JSON, env vars, HTTP payloads. The parameter
+      // type and the guard now say the same thing.
+      assert.throws(() => Currency.fromCode("XXX"), {
         message: "Unsupported currency code: XXX",
       });
     });
@@ -26,6 +27,21 @@ describe("Currency", () => {
       for (const code of Object.keys(currencyDecimals) as CurrencyCode[]) {
         assert.equal(Currency.fromCode(code).code, code);
       }
+    });
+
+    it("throws for an empty string", () => {
+      assert.throws(() => Currency.fromCode(""), {
+        message: "Unsupported currency code: ",
+      });
+    });
+
+    it("does not accept a lowercase code", () => {
+      // ISO 4217 codes are uppercase, so "usd" is a malformed code, not the
+      // same code written differently. Unlike Email, this boundary validates
+      // without normalising: being lenient here would hide a broken payload.
+      assert.throws(() => Currency.fromCode("usd"), {
+        message: "Unsupported currency code: usd",
+      });
     });
   });
 

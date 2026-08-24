@@ -2,8 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { Amount } from "../../src/domain/amount.vo.js";
 import { Currency } from "../../src/domain/currency.vo.js";
-import { Money } from "../../src/domain/money.vo.js";
-import type { CurrencyCode } from "../../src/domain/types/currency.type.js";
+import { Money, type MoneyJSON } from "../../src/domain/money.vo.js";
 
 const usd = Currency.fromCode("USD");
 const eur = Currency.fromCode("EUR");
@@ -231,10 +230,7 @@ describe("Money", () => {
 
     it("round trips through create", () => {
       const money = Money.create({ amount: "10.50", currency: usd });
-      const wire = JSON.parse(JSON.stringify(money)) as {
-        amount: string;
-        currency: CurrencyCode;
-      };
+      const wire = JSON.parse(JSON.stringify(money)) as MoneyJSON;
       const restored = Money.create({
         amount: wire.amount,
         currency: Currency.fromCode(wire.currency),

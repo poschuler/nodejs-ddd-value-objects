@@ -11,6 +11,13 @@ export class Amount extends ValueObject {
   private constructor(props: AmountProps) {
     super();
 
+    // Both guards live in the one gate every Amount passes through. The
+    // finiteness one is reachable: times() can overflow two finite operands
+    // into Infinity. The NaN one is not, today — create() rejects NaN before
+    // this point, and plus, minus, times and dp never produce one from finite
+    // operands. It stays because the first operator that can — a divide(),
+    // where 0/0 is NaN — would otherwise mint an Amount whose value is NaN:
+    // it prints as "NaN", serialises as "NaN", and compares equal to itself.
     if (props.value.isNaN()) {
       throw new Error(`Invalid amount: "${props.value}" is not a number`);
     }
@@ -25,7 +32,7 @@ export class Amount extends ValueObject {
     Object.freeze(this);
   }
 
-  public static create(input: number | string | BigNumber): Amount {
+  public static create(input: number | string): Amount {
     const bigValue = new BigNumber(input);
 
     if (bigValue.isNaN()) {
@@ -51,7 +58,7 @@ export class Amount extends ValueObject {
     return new Amount({ value: newValue });
   }
 
-  public times(multiplier: number | string | BigNumber): Amount {
+  public times(multiplier: number | string): Amount {
     // Routed through create() so a malformed factor is reported by its own
     // literal: BigNumber.times() would quietly turn it into NaN, and the
     // message would name "NaN" instead of what the caller actually wrote.
@@ -92,9 +99,11 @@ export class Amount extends ValueObject {
   }
 }
 
-// BigNumber accepts up to 1e9 decimal places, far enough to exhaust the heap
-// while formatting before it reports anything. No monetary scale comes near
-// this cap, so it stays well below the range where BigNumber becomes a hazard.
+// BigNumber takes a scale of up to 1e9 decimal places, far enough to exhaust the
+// heap while formatting before it reports anything. Capping it at 20 keeps every
+// monetary scale reachable and that failure mode out — out of the scale, at least.
+// Nothing here bounds the magnitude: "1e10000000" is still a finite BigNumber, and
+// every toString() has to materialise all ten million digits.
 const MAX_DECIMALS = 20;
 
 function assertDecimals(decimals: number): void {
