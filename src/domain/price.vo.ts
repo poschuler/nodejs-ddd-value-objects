@@ -16,7 +16,7 @@ export class Price extends ValueObject {
 
   public static create(money: Money): Price {
     if (money.amount.isNegative()) {
-      throw new Error(`Invalid price: ${money.amount} cannot be negative`);
+      throw new Error(`Invalid price: ${money.toString()} cannot be negative`);
     }
     return new Price({ money });
   }

@@ -33,7 +33,7 @@ describe("Price", () => {
 
     it("names the offending amount in the error", () => {
       assert.throws(() => Price.create(money(-1)), {
-        message: "Invalid price: -1 cannot be negative",
+        message: "Invalid price: -1.00 USD cannot be negative",
       });
     });
 
