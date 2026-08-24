@@ -90,9 +90,18 @@ describe("Amount", () => {
       assert.equal(Amount.create("0.3").times(0.1).toString(), "0.03");
     });
 
-    it("rejects a non finite multiplier", () => {
-      assert.throws(() => Amount.create(5).times(Number.POSITIVE_INFINITY));
-      assert.throws(() => Amount.create(5).times(Number.NaN));
+    it("rejects an infinite multiplier", () => {
+      assert.throws(() => Amount.create(5).times(Number.POSITIVE_INFINITY), {
+        message: 'Invalid amount: "Infinity" is not a finite number',
+      });
+    });
+
+    it("rejects a NaN multiplier", () => {
+      // The operators reach the constructor directly, so this pins that they
+      // report the same defect by the same name that create() does.
+      assert.throws(() => Amount.create(5).times(Number.NaN), {
+        message: 'Invalid amount: "NaN" is not a number',
+      });
     });
 
     it("never mutates the operands", () => {

@@ -11,6 +11,10 @@ export class Amount extends ValueObject {
   private constructor(props: AmountProps) {
     super();
 
+    if (props.value.isNaN()) {
+      throw new Error(`Invalid amount: "${props.value}" is not a number`);
+    }
+
     if (!props.value.isFinite()) {
       throw new Error(
         `Invalid amount: "${props.value}" is not a finite number`,
