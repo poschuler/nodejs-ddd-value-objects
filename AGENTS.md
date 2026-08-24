@@ -1,58 +1,92 @@
-# Project Context: Node.js DDD Value Objects
+# AGENTS.md
 
-This project is a TypeScript implementation of the Domain-Driven Design (DDD) Value Object pattern. It provides a set of reusable, immutable value objects and a base class to create new ones. The focus is on ensuring type safety data integrity through validation, and reliable value-based equality.
+TypeScript reference implementation of the DDD Value Object pattern for Node.js. Built as
+teaching material: each value object exists to demonstrate one aspect of the pattern —
+self-validation, immutability, value equality, composition.
 
-## 1. Core Concepts & Architecture
+## Commands
 
-### a. The `ValueObject` Abstract Class (`src/domain/abstractions/value-object.abstract.ts`)
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | Runs `src/app.ts` in watch mode via `tsx` |
+| `pnpm build` | Cleans `dist/` and compiles with `tsconfig.build.json` |
+| `pnpm typecheck` | Type-checks without emitting |
+| `pnpm test` | Runs `node:test` suites under `test/` via `tsx --test` |
+| `pnpm test:watch` | Same, in watch mode |
+| `pnpm test:coverage` | Same, with `--experimental-test-coverage` |
+| `pnpm lint` / `pnpm lint:fix` | Biome check over `src` and `test` |
 
-- **Purpose**: The cornerstone of the pattern. It provides a generic `equals()` method that compares two value
- objects based on their constituent parts.
-- **Key Method**: `getEqualityComponents(): any[]`. Each concrete class must implement this method to return an
- array of its properties that define its identity. The `equals()` method uses this array for comparison.
-  
-### b. Concrete Value Object Implementations
+Package manager is pnpm (`pnpm@10.17.1`). Never use npm or yarn here.
 
-   The project contains several examples of value objects:
+## Layout
 
-- **`Email` (`src/domain/email.vo.ts`)**: A simple value object representing a validated and normalized email
- address.
-- **`Amount` (`src/domain/amount.vo.ts`)**: Represents a monetary value using `BigNumber.js` to avoid floating-poi
- inaccuracies. It enforces non-negativity and provides methods for safe arithmetic (`add`, `times`).
-- **`Currency` (`src/domain/currency.vo.ts`)**: A type-safe object representing a currency code (e.g., "USD", "EUR
- based on a predefined list.
-- **`Money` (`src/domain/money.vo.ts`)**: A composite value object that combines `Amount` and `Currency`. It
- demonstrates how value objects can be composed and include business logic (e.g., preventing addition of different
- currencies).
-  
-### c. Project Structure
+```
+src/
+  app.ts                     Runnable demo of the pattern
+  domain/
+    value-object.ts          ValueObject base class + EqualityComponent type
+    email.vo.ts              Format validation + normalisation
+    amount.vo.ts             Precise decimals via BigNumber.js
+    currency.vo.ts           Closed set of currency codes, with decimal places
+    money.vo.ts              Composition: Amount + Currency
+    price.vo.ts              Refinement: Money constrained to non-negative
+    types/currency.type.ts   currencyDecimals map + CurrencyCode
+test/domain/                 One *.test.ts per value object, mirroring src/domain
+architecture/                Structurizr workspace and exported diagrams
+```
 
-- `src/app.ts`: A demonstration file to show how to create and compare value objects.
-- `src/domain/`: Contains all DDD domain-layer constructs.
-  - `abstractions/`: Home to the base `ValueObject` class.
-  - `types/`: Contains shared type definitions, like `CurrencyCode`.
-  - `*.vo.ts`: Concrete value object implementations.
-  
-## 2. Key Technologies & Conventions
+## Conventions
 
-- **Language**: TypeScript
-- **Runtime**: Node.js
-- **Package Manager**: pnpm
-- **Core Logic**:
-  - Immutability is key. Constructors are private, and creation is handled by static `create()` methods.
-  - Validation is performed within the `create()` method, throwing an error for invalid data.
-  - `BigNumber.js` is used for all monetary calculations to ensure precision.
-- **Development Scripts**:
-  - `pnpm dev`: Runs the application in watch mode using `tsx`.
-  - `pnpm build`: Compiles TypeScript to JavaScript in the `dist` directory.
-  - `pnpm start`: Builds and runs the compiled application.
+- **Construction**: constructors are `private`. Every value object is built through a
+  static factory — `create()`, or a domain-specific one such as `Currency.fromCode()` and
+  `Money.zero()`.
+- **Validation**: invariants are enforced at construction time and throw a plain `Error`
+  with a message naming the offending value. An instance that exists is always valid.
+- **Immutability**: fields are `public readonly`; every concrete value object calls
+  `Object.freeze(this)` at the end of its constructor. Operations (`add`, `subtract`,
+  `times`, `round`) return a new instance and never mutate the receiver.
+- **Equality**: subclasses implement `protected equalityComponents(): readonly EqualityComponent[]`.
+  The base `equals()` compares constructors first, then components pairwise — nested value
+  objects recurse, `Date` compares by timestamp, everything else uses `===`.
+- **Money arithmetic**: all decimal maths goes through `BigNumber.js`. `Amount` exposes its
+  equality component as a fixed string so representation never affects equality.
+- **Naming**: value object files are `*.vo.ts`, shared types are `*.type.ts`, test files are
+  `test/domain/<name>.test.ts`. Class names are the domain term, never suffixed with `VO`.
+- **Tests**: `node:test` with `describe`/`it` and `node:assert/strict`. Test names, comments
+  and identifiers are written in English.
 
-## 3. LLM Collaboration Model
+## Invariants worth knowing
 
-**Directive:** The LLM agent for this project acts as an **architectural consultant and pair programmer**, not as an automated code modifier. The primary goal of the interaction is to discuss architecture, design patterns, and best practices to arrive at a well-reasoned solution, which the user will then implement manually.
+- `Amount` accepts negative values — it only rejects `NaN` and non-finite input. Non-negativity
+  is `Price`'s invariant, not `Amount`'s.
+- `Money` rounds its amount to the currency's decimal places at construction (`JPY` → 0, others → 2).
+- `Money.add()` / `subtract()` throw when currencies differ.
+- `Currency.All` is a frozen list built from `currencyDecimals`; `fromCode()` returns the shared
+  instance, so currencies are interned.
 
-**Rules of Engagement:**
+## Collaboration model
 
-- **Source Code Modification:** The LLM **must not** use tools (`write_file`, `replace`) to modify source code files (e.g., `.ts`, `.json`, `.sql`). All suggestions for code changes must be provided as text or code snippets in the chat response.
-- **Documentation File Modification:** The LLM **may only** use file modification tools (`write_file`, `replace`) for documentation and context files (e.g., `.gemini.md`, `README.md`), and **only when explicitly instructed** to do so by the user.
-- **Shell Commands:** The LLM should avoid running shell commands (`run_shell_command`) unless explicitly asked, especially for commands that modify the file system or git state.
+The agent acts as an **architectural consultant and pair programmer**, not as an automated
+code modifier. The point of each exchange is to reason about design and arrive at a solution
+the user then implements by hand.
+
+- **Source code**: do **not** edit `.ts`, `.json` or `.sql` files. Deliver every code
+  suggestion as a snippet in the reply.
+- **Documentation**: `AGENTS.md`, `CONTEXT.md`, `README.md`, `docs/**` may be edited with
+  file tools, but **only when the user explicitly asks**.
+- **Shell**: avoid commands that mutate the filesystem or git state unless asked.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as GitHub issues on `poschuler/nodejs-ddd-value-objects`, driven by the `gh` CLI.
+See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five canonical triage roles, each label named after its role. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
