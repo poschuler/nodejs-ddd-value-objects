@@ -18,6 +18,19 @@ self-validation, immutability, value equality, composition.
 
 Package manager is pnpm (`pnpm@10.17.1`). Never use npm or yarn here.
 
+## Local setup
+
+`architecture/workspace.json` carries a `lastModifiedDate` that Structurizr rewrites every time
+the workspace is opened. A `clean` filter pins it to the epoch in what git stores, so the stamp
+alone never shows up as a change. `.gitattributes` names the filter, but a filter's definition
+is not versioned — each clone needs it once:
+
+```bash
+git config filter.structurizr.clean 'sed "s/\"lastModifiedDate\" : \"[^\"]*\"/\"lastModifiedDate\" : \"1970-01-01T00:00:00Z\"/"'
+```
+
+Without it the field simply stops being normalised; nothing breaks.
+
 ## Layout
 
 ```
@@ -42,6 +55,9 @@ architecture/                Structurizr workspace and exported diagrams
   `Money.zero()`.
 - **Validation**: invariants are enforced at construction time and throw a plain `Error`
   with a message naming the offending value. An instance that exists is always valid.
+  Operation arguments are validated too — `Amount.round()` and `toFixed()` reject decimals
+  that are not a non-negative integer, so a `[BigNumber Error]` never reaches the caller.
+  `BigNumber` is an implementation detail of `Amount`, not part of its contract.
 - **Immutability**: fields are `public readonly`; every concrete value object calls
   `Object.freeze(this)` at the end of its constructor. Operations (`add`, `subtract`,
   `times`, `round`) return a new instance and never mutate the receiver.
@@ -58,7 +74,8 @@ architecture/                Structurizr workspace and exported diagrams
 ## Invariants worth knowing
 
 - `Amount` accepts negative values — it only rejects `NaN` and non-finite input. Non-negativity
-  is `Price`'s invariant, not `Amount`'s.
+  is `Price`'s invariant, not `Amount`'s. The two defects are named apart (`"is not a number"`
+  vs `"is not a finite number"`) from every entry point: `create()` and the operators alike.
 - `Money` rounds its amount to the currency's decimal places at construction (`JPY` → 0, others → 2).
 - `Money.add()` / `subtract()` throw when currencies differ.
 - `Currency.All` is a frozen list built from `currencyDecimals`; `fromCode()` returns the shared

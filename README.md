@@ -35,16 +35,16 @@ The project includes several examples of practical value objects:
 ### `Email` (`src/domain/email.vo.ts`)
 
 - Represents an email address.
-- Validates the email format and normalizes it (trims surrounding whitespace and converts to lowercase) before validating, so addresses differing only in case are equal.
+- Normalizes the address first (trims surrounding whitespace, converts to lowercase) and validates afterwards, so `""` and `"   "` fail for the same reason, and addresses differing only in case are equal.
 - Demonstrates basic string-based value object principles.
 
 ### `Amount` (`src/domain/amount.vo.ts`)
 
 - Represents a numeric quantity, with no currency attached.
 - Utilizes `bignumber.js` to handle precise decimal arithmetic, avoiding common floating-point inaccuracies.
-- Accepts `number`, `string` or `BigNumber` input, and rejects anything that is not a finite number.
+- Accepts `number`, `string` or `BigNumber` input, and rejects both `NaN` and non-finite values, naming each defect for what it is.
 - Negative values are allowed — non-negativity is `Price`'s invariant, not this one's.
-- Provides arithmetic operations (`add()`, `subtract()`, `times()`, `round()`), predicates (`isZero()`, `isNegative()`, `isPositive()`) and formatting helpers (`toString()`, `toFixed()`).
+- Provides arithmetic operations (`add()`, `subtract()`, `times()`, `round()`), predicates (`isZero()`, `isNegative()`, `isPositive()`) and formatting helpers (`toString()`, `toFixed()`). `round()` and `toFixed()` reject decimals that are not a non-negative integer, so `bignumber.js` errors never surface.
 - Exposes its equality component as a fixed-notation string, so `1.50` and `1.5` compare as equal.
 
 ### `Currency` (`src/domain/currency.vo.ts`)
@@ -113,6 +113,8 @@ You can explore the diagrams locally using the `local` command of the Structuriz
 The `docker-compose.yml` file is configured to mount the local `./architecture` directory into the container as Structurizr's data directory, so any changes you make to the `.dsl` file are picked up when you refresh the browser. Configuration options can be set in a `structurizr.properties` file in that same directory, or as environment variables on the service.
 
 The container is pinned to `user: "1000:1000"` so that it can write to the mounted directory — the image's default user is the distroless `nonroot` account (UID 65532), which cannot write to a host directory owned by you. Adjust the UID/GID if yours differ (`id -u`, `id -g`).
+
+> **Note**: `architecture/workspace.json` carries a `lastModifiedDate` that Structurizr rewrites on every open. A git `clean` filter keeps that stamp out of the history: `.gitattributes` names the filter, but its definition is local to each clone. See **Local setup** in `AGENTS.md` for the one-off `git config` a fresh clone needs.
 
 ### Diagrams Overview
 
