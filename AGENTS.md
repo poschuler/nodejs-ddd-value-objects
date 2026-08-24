@@ -56,16 +56,25 @@ architecture/                Structurizr workspace and exported diagrams
 - **Validation**: invariants are enforced at construction time and throw a plain `Error`
   with a message naming the offending value. An instance that exists is always valid.
   Operation arguments are validated too — `Amount.round()` and `toFixed()` reject decimals
-  that are not a non-negative integer, so a `[BigNumber Error]` never reaches the caller.
-  `BigNumber` is an implementation detail of `Amount`, not part of its contract.
-- **Immutability**: fields are `public readonly`; every concrete value object calls
-  `Object.freeze(this)` at the end of its constructor. Operations (`add`, `subtract`,
+  outside `0..MAX_DECIMALS`, so neither a `[BigNumber Error]` nor the heap exhaustion that
+  `toFixed(1e9)` would cause ever reaches the caller. `BigNumber` is an implementation detail
+  of `Amount`, not part of its contract.
+- **Immutability**: every concrete value object calls `Object.freeze(this)` at the end of its
+  constructor. `freeze` is shallow, so a field holding a mutable object is not enough on its
+  own: `Amount` keeps its `BigNumber` in a `#private` field, unreachable by any cast.
+  TypeScript's `private` would not do — it is erased at compile time and the object stays
+  writable at runtime. Every other field is `public readonly`. Operations (`add`, `subtract`,
   `times`, `round`) return a new instance and never mutate the receiver.
 - **Equality**: subclasses implement `protected equalityComponents(): readonly EqualityComponent[]`.
   The base `equals()` compares constructors first, then components pairwise — nested value
   objects recurse, `Date` compares by timestamp, everything else uses `===`.
 - **Money arithmetic**: all decimal maths goes through `BigNumber.js`. `Amount` exposes its
   equality component as a fixed string so representation never affects equality.
+- **Serialisation**: a value object that hides its representation implements `toJSON()`, since
+  `JSON.stringify` only sees own enumerable properties and would otherwise emit `{}`. It
+  returns a form the factories can read back, which is not the same as `toString()`: that one
+  is for humans and stops round-tripping as soon as a value object composes others
+  (`"10.50 USD"` goes out, but no factory takes it in).
 - **Naming**: value object files are `*.vo.ts`, shared types are `*.type.ts`, test files are
   `test/domain/<name>.test.ts`. Class names are the domain term, never suffixed with `VO`.
 - **Tests**: `node:test` with `describe`/`it` and `node:assert/strict`. Test names, comments
@@ -76,6 +85,9 @@ architecture/                Structurizr workspace and exported diagrams
 - `Amount` accepts negative values — it only rejects `NaN` and non-finite input. Non-negativity
   is `Price`'s invariant, not `Amount`'s. The two defects are named apart (`"is not a number"`
   vs `"is not a finite number"`) from every entry point: `create()` and the operators alike.
+- `Amount.times()` takes `number | string | BigNumber`. A `number` factor has already been
+  through binary floating point before the call, so a string is the only way to hand it an
+  exact one — the type cannot rescue a value that arrived corrupted.
 - `Money` rounds its amount to the currency's decimal places at construction (`JPY` → 0, others → 2).
 - `Money.add()` / `subtract()` throw when currencies differ.
 - `Currency.All` is a frozen list built from `currencyDecimals`; `fromCode()` returns the shared

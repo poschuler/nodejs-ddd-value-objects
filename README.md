@@ -14,7 +14,7 @@ The primary goal is to illustrate best practices for designing robust and mainta
 
 Value Objects are objects that measure, quantify, or describe a thing in the domain. They are characterized by:
 
-- **Immutability**: Once created, their state cannot change. Fields are declared `readonly`, and every concrete value object calls `Object.freeze(this)` in its constructor.
+- **Immutability**: Once created, their state cannot change. Every concrete value object calls `Object.freeze(this)` in its constructor. Because `freeze` is shallow, a field holding a mutable object needs more than that: `Amount` keeps its `BigNumber` in a `#private` field, so no cast can reach it and mutate the value in place. TypeScript's `private` would not be enough — it is erased at compile time.
 - **Value-Based Equality**: Two value objects are considered equal if all their constituent attributes are equal, not by their memory reference.
 - **Self-Validation**: They enforce their own invariants upon creation. Construction goes through a static factory, so an instance that exists is always valid.
 - **No Side Effects**: Operations on value objects return new instances rather than modifying the original.
@@ -44,7 +44,9 @@ The project includes several examples of practical value objects:
 - Utilizes `bignumber.js` to handle precise decimal arithmetic, avoiding common floating-point inaccuracies.
 - Accepts `number`, `string` or `BigNumber` input, and rejects both `NaN` and non-finite values, naming each defect for what it is.
 - Negative values are allowed — non-negativity is `Price`'s invariant, not this one's.
-- Provides arithmetic operations (`add()`, `subtract()`, `times()`, `round()`), predicates (`isZero()`, `isNegative()`, `isPositive()`) and formatting helpers (`toString()`, `toFixed()`). `round()` and `toFixed()` reject decimals that are not a non-negative integer, so `bignumber.js` errors never surface.
+- Provides arithmetic operations (`add()`, `subtract()`, `times()`, `round()`), predicates (`isZero()`, `isNegative()`, `isPositive()`) and formatting helpers (`toString()`, `toFixed()`, `toJSON()`). `round()` and `toFixed()` reject any scale outside the supported range (0 to 20 decimal places), so neither a `bignumber.js` error nor the heap exhaustion that an enormous scale would cause ever surfaces.
+- `times()` accepts a `number`, `string` or `BigNumber` factor. A `number` has already passed through binary floating point by the time it arrives, so a string is the only way to give it an exact one.
+- Implements `toJSON()`, because the `#private` field is invisible to `JSON.stringify`: without the hook, an `Amount` would serialise to `{}` and lose its value silently.
 - Exposes its equality component as a fixed-notation string, so `1.50` and `1.5` compare as equal.
 
 ### `Currency` (`src/domain/currency.vo.ts`)
@@ -60,6 +62,7 @@ The project includes several examples of practical value objects:
 - Rounds its amount to the currency's decimal places at construction, so `Money` is always expressed at its currency's precision.
 - Includes business logic, such as ensuring that `add()` and `subtract()` are only performed between `Money` objects of the same currency.
 - Provides static factory methods — `create()`, which accepts an `Amount`, a `number` or a `string`, and `zero()` for creating zero-value money instances.
+- Implements `toJSON()`, which emits `{ amount, currency }` with the amount padded to the currency's scale and the currency as its code alone. Unlike `toString()`, that form round-trips back through `Money.create()`; `decimals` is left out because it is derived from the code.
 
 ### `Price` (`src/domain/price.vo.ts`)
 
