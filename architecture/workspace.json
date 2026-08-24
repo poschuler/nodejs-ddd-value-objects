@@ -3,7 +3,7 @@
   "description" : "Description",
   "documentation" : { },
   "id" : 1,
-  "lastModifiedDate" : "2026-08-23T21:09:14Z",
+  "lastModifiedDate" : "2026-08-24T15:10:29Z",
   "model" : {
     "softwareSystems" : [ {
       "description" : "Third party library for arbitrary-precision decimal and non-decimal arithmetic",
