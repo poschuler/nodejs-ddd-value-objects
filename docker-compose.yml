@@ -1,14 +1,19 @@
-name: structurizr-lite
+name: structurizr
 
 networks:
   structurizr-network:
     driver: bridge
 
 services:
-  structurizr-lite:
-    image: structurizr/lite:latest
-    container_name: structurizr-lite
-    restart: always
+  structurizr:
+    image: structurizr/structurizr:latest
+    container_name: structurizr
+    command: local
+    # The image runs as the distroless "nonroot" user (UID 65532), which cannot
+    # write to a host directory owned by us. Run it as the host user instead, so
+    # Structurizr can auto-save workspace.json and the files it writes stay ours.
+    user: "1000:1000"
+    restart: unless-stopped
     ports:
       - "8081:8080"
     volumes:
