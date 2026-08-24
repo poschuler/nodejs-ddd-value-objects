@@ -28,8 +28,10 @@ describe("Email", () => {
     });
 
     it("rejects a blank string", () => {
+      // Blank collapses to empty once trimmed, so it fails for the same
+      // reason as "": there is no value, not a malformed one.
       assert.throws(() => Email.create("   "), {
-        message: "Invalid email address",
+        message: "Email requires a value",
       });
     });
 

@@ -10,9 +10,9 @@ export class Email extends ValueObject {
   }
 
   public static create(input: string): Email {
-    if (!input) throw new Error("Email requires a value");
-
     const normalizedEmail = input.trim().toLowerCase();
+
+    if (!normalizedEmail) throw new Error("Email requires a value");
 
     if (!Email.isValid(normalizedEmail)) {
       throw new Error("Invalid email address");
