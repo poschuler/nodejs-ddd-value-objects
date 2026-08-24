@@ -24,7 +24,7 @@ export class Money extends ValueObject {
     Object.freeze(this);
   }
 
-  public static create(inputProps: CreateMoneyProps) {
+  public static create(inputProps: CreateMoneyProps): Money {
     const amount =
       inputProps.amount instanceof Amount
         ? inputProps.amount
