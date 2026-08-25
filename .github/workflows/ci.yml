@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    name: Type-check, test and lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # No `version` on purpose: the action reads the `packageManager` field
+      # from package.json, so the pnpm pin lives in exactly one place.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      # Deliberately not `pnpm lint`: `biome check` exits 0 when it reports
+      # warnings, so the plain script would wave a warning through a green
+      # build. This makes CI judge the code the way the editor already does.
+      - name: Lint
+        run: pnpm exec biome check --error-on-warnings src test
