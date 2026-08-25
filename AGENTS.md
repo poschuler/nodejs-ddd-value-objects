@@ -10,6 +10,7 @@ self-validation, immutability, value equality, composition.
 | --- | --- |
 | `pnpm dev` | Runs `src/app.ts` in watch mode via `tsx` |
 | `pnpm build` | Cleans `dist/` and compiles with `tsconfig.build.json` |
+| `pnpm start` | Builds, then runs the compiled `dist/app.js` |
 | `pnpm typecheck` | Type-checks without emitting |
 | `pnpm test` | Runs `node:test` suites under `test/` via `tsx --test` |
 | `pnpm test:watch` | Same, in watch mode |
@@ -46,6 +47,10 @@ src/
     types/currency.type.ts   currencyDecimals map + CurrencyCode
 test/domain/                 One *.test.ts per value object, mirroring src/domain
 architecture/                Structurizr workspace and exported diagrams
+docs/
+  adr/                       Architecture decision records
+  agents/                    Conventions the agent skills read
+CONTEXT.md                   Domain glossary (ubiquitous language)
 ```
 
 ## Conventions
@@ -169,15 +174,6 @@ the user then implements by hand.
 - **Shell**: avoid commands that mutate the filesystem or git state unless asked.
 
 ## Agent skills
-
-### Issue tracker
-
-Issues live as GitHub issues on `poschuler/nodejs-ddd-value-objects`, driven by the `gh` CLI.
-See `docs/agents/issue-tracker.md`.
-
-### Triage labels
-
-The five canonical triage roles, each label named after its role. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
