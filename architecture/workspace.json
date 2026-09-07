@@ -16,135 +16,174 @@
       "tags" : "Element,Software System,external"
     }, {
       "containers" : [ {
+        "description" : "Runs every value object in turn and prints what each one guarantees.",
+        "documentation" : { },
+        "id" : "3",
+        "name" : "Console Demo",
+        "properties" : {
+          "structurizr.dsl.identifier" : "demoRunner"
+        },
+        "relationships" : [ {
+          "description" : "exercises",
+          "destinationId" : "4",
+          "id" : "25",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container,demo"
+      }, {
         "components" : [ {
-          "description" : "Abstract base class for all Value Objects",
+          "description" : "Abstract base class: immutability, and equality by declared components rather than by identity.",
           "documentation" : { },
-          "id" : "4",
+          "id" : "5",
           "name" : "Value Object",
           "properties" : {
             "structurizr.dsl.identifier" : "valueObject"
           },
           "tags" : "Element,Component,abstract"
         }, {
-          "description" : "Value object for user email, ensuring format and compliance validation.",
+          "description" : "Email address, normalised to lowercase and trimmed, so addresses differing only in case are one value.",
           "documentation" : { },
-          "id" : "5",
+          "id" : "6",
           "name" : "Email",
           "properties" : {
             "structurizr.dsl.identifier" : "emailVO"
           },
           "relationships" : [ {
             "description" : "inherits from",
-            "destinationId" : "4",
-            "id" : "10",
-            "sourceId" : "5",
+            "destinationId" : "5",
+            "id" : "12",
+            "sourceId" : "6",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component,value-object,email"
         }, {
-          "description" : "A complex Value Object representing a specific monetary amount and currency.",
+          "description" : "An Amount denominated in a Currency, rounded half up to that currency's decimal places at construction.",
           "documentation" : { },
-          "id" : "6",
+          "id" : "7",
           "name" : "Money",
           "properties" : {
             "structurizr.dsl.identifier" : "moneyVO"
           },
           "relationships" : [ {
             "description" : "inherits from",
-            "destinationId" : "4",
-            "id" : "11",
-            "sourceId" : "6",
+            "destinationId" : "5",
+            "id" : "13",
+            "sourceId" : "7",
             "tags" : "Relationship"
           }, {
-            "description" : "is composed of",
-            "destinationId" : "7",
-            "id" : "15",
-            "sourceId" : "6",
-            "tags" : "Relationship"
-          }, {
-            "description" : "is composed of",
+            "description" : "builds and holds",
             "destinationId" : "8",
-            "id" : "16",
-            "sourceId" : "6",
+            "id" : "17",
+            "sourceId" : "7",
+            "tags" : "Relationship"
+          }, {
+            "description" : "holds, and takes its scale from",
+            "destinationId" : "9",
+            "id" : "18",
+            "sourceId" : "7",
+            "tags" : "Relationship"
+          }, {
+            "description" : "names the code on the wire form",
+            "destinationId" : "11",
+            "id" : "21",
+            "sourceId" : "7",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component,value-object,money"
         }, {
-          "description" : "Value object representing the high-precision numerical quantity of money.",
+          "description" : "An exact decimal quantity, with no currency attached. May be negative.",
           "documentation" : { },
-          "id" : "7",
+          "id" : "8",
           "name" : "Amount",
           "properties" : {
             "structurizr.dsl.identifier" : "amountVO"
           },
           "relationships" : [ {
             "description" : "inherits from",
-            "destinationId" : "4",
-            "id" : "13",
-            "sourceId" : "7",
+            "destinationId" : "5",
+            "id" : "15",
+            "sourceId" : "8",
             "tags" : "Relationship"
           }, {
-            "description" : "uses for high-precision arithmetic",
+            "description" : "delegates decimal arithmetic to, and keeps out of its public API",
             "destinationId" : "1",
-            "id" : "18",
-            "sourceId" : "7",
+            "id" : "22",
+            "sourceId" : "8",
             "tags" : "Relationship,external-dependency"
           } ],
           "tags" : "Element,Component,value-object,amount"
         }, {
-          "description" : "Value object representing currency code.",
+          "description" : "A supported denomination from a closed set, carrying the ISO code and the decimal places its amounts are expressed in.",
           "documentation" : { },
-          "id" : "8",
+          "id" : "9",
           "name" : "Currency",
           "properties" : {
             "structurizr.dsl.identifier" : "currencyVO"
           },
           "relationships" : [ {
             "description" : "inherits from",
-            "destinationId" : "4",
-            "id" : "12",
-            "sourceId" : "8",
+            "destinationId" : "5",
+            "id" : "14",
+            "sourceId" : "9",
+            "tags" : "Relationship"
+          }, {
+            "description" : "reads the supported set and its scales",
+            "destinationId" : "11",
+            "id" : "20",
+            "sourceId" : "9",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component,value-object,currency"
         }, {
-          "description" : "Value object representing non-negative Money: what something costs.",
+          "description" : "Money constrained to non-negative: what something costs.",
           "documentation" : { },
-          "id" : "9",
+          "id" : "10",
           "name" : "Price",
           "properties" : {
             "structurizr.dsl.identifier" : "priceVO"
           },
           "relationships" : [ {
             "description" : "inherits from",
-            "destinationId" : "4",
-            "id" : "14",
-            "sourceId" : "9",
+            "destinationId" : "5",
+            "id" : "16",
+            "sourceId" : "10",
             "tags" : "Relationship"
           }, {
-            "description" : "is composed of",
-            "destinationId" : "6",
-            "id" : "17",
-            "sourceId" : "9",
+            "description" : "refines, adding non-negativity",
+            "destinationId" : "7",
+            "id" : "19",
+            "sourceId" : "10",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component,value-object,price"
+        }, {
+          "description" : "The closed set of supported ISO codes and the decimal places each one is expressed in.",
+          "documentation" : { },
+          "id" : "11",
+          "name" : "Currency Codes",
+          "properties" : {
+            "structurizr.dsl.identifier" : "currencyCodes"
+          },
+          "tags" : "Element,Component,types"
         } ],
+        "description" : "The value objects themselves: self-validating, immutable, compared by value.",
         "documentation" : { },
-        "id" : "3",
+        "id" : "4",
         "name" : "Domain Layer",
         "properties" : {
           "structurizr.dsl.identifier" : "domainLayer"
         },
         "relationships" : [ {
-          "description" : "uses for high-precision arithmetic",
+          "description" : "delegates decimal arithmetic to, and keeps out of its public API",
           "destinationId" : "1",
-          "id" : "19",
-          "linkedRelationshipId" : "18",
-          "sourceId" : "3"
+          "id" : "23",
+          "linkedRelationshipId" : "22",
+          "sourceId" : "4"
         } ],
         "tags" : "Element,Container,domain"
       } ],
+      "description" : "Reference implementation of the DDD Value Object pattern, built as teaching material.",
       "documentation" : { },
       "id" : "2",
       "name" : "Node.js Application",
@@ -152,10 +191,10 @@
         "structurizr.dsl.identifier" : "nodeJsApp"
       },
       "relationships" : [ {
-        "description" : "uses for high-precision arithmetic",
+        "description" : "delegates decimal arithmetic to, and keeps out of its public API",
         "destinationId" : "1",
-        "id" : "20",
-        "linkedRelationshipId" : "18",
+        "id" : "24",
+        "linkedRelationshipId" : "22",
         "sourceId" : "2"
       } ],
       "tags" : "Element,Software System,node-js"
@@ -163,8 +202,8 @@
   },
   "name" : "ValueObjects Node.js implementation",
   "properties" : {
-    "structurizr.inspection.error" : "19",
-    "structurizr.dsl" : "d29ya3NwYWNlICJWYWx1ZU9iamVjdHMgTm9kZS5qcyBpbXBsZW1lbnRhdGlvbiIgewoKICAgIG1vZGVsIHsKCiAgICAgICAgYmlnTnVtYmVyID0gc29mdHdhcmVTeXN0ZW0gImJpZ251bWJlci5qcyIgIlRoaXJkIHBhcnR5IGxpYnJhcnkgZm9yIGFyYml0cmFyeS1wcmVjaXNpb24gZGVjaW1hbCBhbmQgbm9uLWRlY2ltYWwgYXJpdGhtZXRpYyIgewogICAgICAgICAgICB0YWdzICJleHRlcm5hbCIKICAgICAgICB9CgogICAgICAgIG5vZGVKc0FwcCA9IHNvZnR3YXJlU3lzdGVtICJOb2RlLmpzIEFwcGxpY2F0aW9uIiB7CiAgICAgICAgICAgIHRhZ3MgIm5vZGUtanMiCgogICAgICAgICAgICBkb21haW5MYXllciA9IGNvbnRhaW5lciAiRG9tYWluIExheWVyIiB7CiAgICAgICAgICAgICAgICB0YWdzICJkb21haW4iCgogICAgICAgICAgICAgICAgdmFsdWVPYmplY3QgPSBjb21wb25lbnQgIlZhbHVlIE9iamVjdCIgIkFic3RyYWN0IGJhc2UgY2xhc3MgZm9yIGFsbCBWYWx1ZSBPYmplY3RzIiB7CiAgICAgICAgICAgICAgICAgICAgdGFncyAiYWJzdHJhY3QiCiAgICAgICAgICAgICAgICB9ICAgICAgICAgICAgICAgCgogICAgICAgICAgICAgICAgZW1haWxWTyA9IGNvbXBvbmVudCAiRW1haWwiICJWYWx1ZSBvYmplY3QgZm9yIHVzZXIgZW1haWwsIGVuc3VyaW5nIGZvcm1hdCBhbmQgY29tcGxpYW5jZSB2YWxpZGF0aW9uLiIgewogICAgICAgICAgICAgICAgICAgIHRhZ3MgInZhbHVlLW9iamVjdCIgImVtYWlsIgogICAgICAgICAgICAgICAgfSAgICAgICAgICAgICAgICAKCiAgICAgICAgICAgICAgICBtb25leVZPID0gY29tcG9uZW50ICJNb25leSIgIkEgY29tcGxleCBWYWx1ZSBPYmplY3QgcmVwcmVzZW50aW5nIGEgc3BlY2lmaWMgbW9uZXRhcnkgYW1vdW50IGFuZCBjdXJyZW5jeS4iIHsKICAgICAgICAgICAgICAgICAgICB0YWdzICJ2YWx1ZS1vYmplY3QiICJtb25leSIKICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICBhbW91bnRWTyA9IGNvbXBvbmVudCAiQW1vdW50IiAiVmFsdWUgb2JqZWN0IHJlcHJlc2VudGluZyB0aGUgaGlnaC1wcmVjaXNpb24gbnVtZXJpY2FsIHF1YW50aXR5IG9mIG1vbmV5LiIgewogICAgICAgICAgICAgICAgICAgIHRhZ3MgInZhbHVlLW9iamVjdCIgImFtb3VudCIKICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICBjdXJyZW5jeVZPID0gY29tcG9uZW50ICJDdXJyZW5jeSIgIlZhbHVlIG9iamVjdCByZXByZXNlbnRpbmcgY3VycmVuY3kgY29kZS4iIHsKICAgICAgICAgICAgICAgICAgICB0YWdzICJ2YWx1ZS1vYmplY3QiICJjdXJyZW5jeSIKICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICBwcmljZVZPID0gY29tcG9uZW50ICJQcmljZSIgIlZhbHVlIG9iamVjdCByZXByZXNlbnRpbmcgbm9uLW5lZ2F0aXZlIE1vbmV5OiB3aGF0IHNvbWV0aGluZyBjb3N0cy4iIHsKICAgICAgICAgICAgICAgICAgICB0YWdzICJ2YWx1ZS1vYmplY3QiICJwcmljZSIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICAgICAgZW1haWxWTyAtPiB2YWx1ZU9iamVjdCAiaW5oZXJpdHMgZnJvbSIKICAgICAgICBtb25leVZPIC0+IHZhbHVlT2JqZWN0ICJpbmhlcml0cyBmcm9tIgogICAgICAgIGN1cnJlbmN5Vk8gLT4gdmFsdWVPYmplY3QgImluaGVyaXRzIGZyb20iCiAgICAgICAgYW1vdW50Vk8gLT4gdmFsdWVPYmplY3QgImluaGVyaXRzIGZyb20iCiAgICAgICAgcHJpY2VWTyAtPiB2YWx1ZU9iamVjdCAiaW5oZXJpdHMgZnJvbSIKCiAgICAgICAgbW9uZXlWTyAtPiBhbW91bnRWTyAiaXMgY29tcG9zZWQgb2YiCiAgICAgICAgbW9uZXlWTyAtPiBjdXJyZW5jeVZPICJpcyBjb21wb3NlZCBvZiIKCiAgICAgICAgcHJpY2VWTyAtPiBtb25leVZPICJpcyBjb21wb3NlZCBvZiIKCiAgICAgICAgYW1vdW50Vk8gLT4gYmlnTnVtYmVyICJ1c2VzIGZvciBoaWdoLXByZWNpc2lvbiBhcml0aG1ldGljIiB7CiAgICAgICAgICAgIHRhZ3MgImV4dGVybmFsLWRlcGVuZGVuY3kiCiAgICAgICAgfQogICAgfQoKICAgIHZpZXdzIHsKCiAgICAgICAgcHJvcGVydGllcyB7CiAgICAgICAgICAgICJzdHJ1Y3R1cml6ci5sb2NhbGUiICJlbi1VUyIKICAgICAgICB9CgogICAgICAgIGNvbXBvbmVudCBkb21haW5MYXllciAiRG9tYWluLUxheWVyLU92ZXJ2aWV3InsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIC8vIEtlcHQgb3V0IG9uIHB1cnBvc2U6IGFzIGFuIGVsZW1lbnQgb3V0c2lkZSBib3RoIGJvdW5kYXJpZXMsIGF1dG9sYXlvdXQKICAgICAgICAgICAgLy8gcGxhY2VzIGl0IHdoZXJlIHRoZSBzb2Z0d2FyZSBzeXN0ZW0gYm91bmRhcnkgaXMgbGF0ZXIgZHJhd24gb3ZlciBpdC4KICAgICAgICAgICAgLy8gVGhlIGRlcGVuZGVuY3kgaXMgc2hvd24gaW4gZnVsbCBpbiB0aGUgTW9uZXktVmFsdWUtT2JqZWN0IHZpZXcuCiAgICAgICAgICAgIGV4Y2x1ZGUgYmlnTnVtYmVyCiAgICAgICAgICAgIC8vIEV4cGxpY2l0IHBhcmFtZXRlcnM6IGEgYmFyZSBgYXV0b2xheW91dGAgbGV0cyBzdGFsZSB2YWx1ZXMgY2FjaGVkIGluCiAgICAgICAgICAgIC8vIHdvcmtzcGFjZS5qc29uIHdpbiwgYW5kIHRpZ2h0IHNlcGFyYXRpb24gaXMgd2hhdCBsZXRzIHRoZSBib3VuZGFyeQogICAgICAgICAgICAvLyBjcm93ZCBpdHMgbmVpZ2hib3Vycy4KICAgICAgICAgICAgYXV0b2xheW91dCBsciAzMDAgMzAwCgogICAgICAgIH0KICAgICAgICAKICAgICAgICBjb21wb25lbnQgZG9tYWluTGF5ZXIgIkVtYWlsLVZhbHVlLU9iamVjdCJ7CiAgICAgICAgICAgIGluY2x1ZGUgdmFsdWVPYmplY3QKICAgICAgICAgICAgaW5jbHVkZSBlbWFpbFZPCiAgICAgICAgICAgIAogICAgICAgICAgICBhdXRvbGF5b3V0IGxyCgogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IGRvbWFpbkxheWVyICJNb25leS1WYWx1ZS1PYmplY3QiewogICAgICAgICAgICBpbmNsdWRlIHZhbHVlT2JqZWN0CiAgICAgICAgICAgIGluY2x1ZGUgbW9uZXlWTwogICAgICAgICAgICBpbmNsdWRlIGFtb3VudFZPCiAgICAgICAgICAgIGluY2x1ZGUgY3VycmVuY3lWTwogICAgICAgICAgICBpbmNsdWRlIGJpZ051bWJlcgoKICAgICAgICAgICAgYXV0b2xheW91dCBscgoKICAgICAgICB9CgogICAgICAgIGNvbXBvbmVudCBkb21haW5MYXllciAiUHJpY2UtVmFsdWUtT2JqZWN0InsKICAgICAgICAgICAgaW5jbHVkZSB2YWx1ZU9iamVjdAogICAgICAgICAgICBpbmNsdWRlIHByaWNlVk8KICAgICAgICAgICAgaW5jbHVkZSBtb25leVZPCgogICAgICAgICAgICBhdXRvbGF5b3V0IGxyCgogICAgICAgIH0KCiAgICAgICAgCgogICAgICAgIHN0eWxlcyB7CgogICAgICAgICAgICBlbGVtZW50ICJ2YWx1ZS1vYmplY3QiIHsKICAgICAgICAgICAgICAgIHNoYXBlIFJvdW5kZWRCb3gKICAgICAgICAgICAgICAgIHN0cm9rZVdpZHRoIDIKICAgICAgICAgICAgICAgIHN0cm9rZSAiIzAwMDAwMCIKICAgICAgICAgICAgfQoKICAgICAgICAgICAgZWxlbWVudCAiZXh0ZXJuYWwiIHsKICAgICAgICAgICAgICAgIHNoYXBlIFJvdW5kZWRCb3gKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgI2ZmYmYwMAogICAgICAgICAgICAgICAgY29sb3IgIiMwMDAwMDAiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGVsZW1lbnQgImFic3RyYWN0IiB7CiAgICAgICAgICAgICAgICBzaGFwZSBSb3VuZGVkQm94CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICNmMGYwZjAKICAgICAgICAgICAgICAgIGNvbG9yICIjMDAwMDAwIgogICAgICAgICAgICB9CgogICAgICAgICAgICBlbGVtZW50ICJub2RlLWpzIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBSb3VuZGVkQm94CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM5MEM1M0YKICAgICAgICAgICAgICAgIGNvbG9yICIjZmZmZmZmIgogICAgICAgICAgICB9CgogICAgICAgICAgICBlbGVtZW50ICJkb21haW4iIHsKICAgICAgICAgICAgICAgIHNoYXBlIFJvdW5kZWRCb3gKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzQzOGRkNQogICAgICAgICAgICAgICAgY29sb3IgIiNmZmZmZmYiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGVsZW1lbnQgImVtYWlsIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBSb3VuZGVkQm94CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM2ZDRjNDEKICAgICAgICAgICAgICAgIGNvbG9yICIjZmZmZmZmIgogICAgICAgICAgICB9CgogICAgICAgICAgICBlbGVtZW50ICJtb25leSIgewogICAgICAgICAgICAgICAgc2hhcGUgUm91bmRlZEJveAogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjNGEyYzhlCiAgICAgICAgICAgICAgICBjb2xvciAiI2ZmZmZmZiIKICAgICAgICAgICAgfQoKICAgICAgICAgICAgZWxlbWVudCAiYW1vdW50IiB7CiAgICAgICAgICAgICAgICBzaGFwZSBSb3VuZGVkQm94CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM1ZTM1YjEKICAgICAgICAgICAgICAgIGNvbG9yICIjZmZmZmZmIgogICAgICAgICAgICB9CgogICAgICAgICAgICBlbGVtZW50ICJjdXJyZW5jeSIgewogICAgICAgICAgICAgICAgc2hhcGUgUm91bmRlZEJveAogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjNWUzNWIxCiAgICAgICAgICAgICAgICBjb2xvciAiI2ZmZmZmZiIKICAgICAgICAgICAgfQoKICAgICAgICAgICAgZWxlbWVudCAicHJpY2UiIHsKICAgICAgICAgICAgICAgIHNoYXBlIFJvdW5kZWRCb3gKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzdlNTdjMgogICAgICAgICAgICAgICAgY29sb3IgIiNmZmZmZmYiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIHJlbGF0aW9uc2hpcCAiZXh0ZXJuYWwtZGVwZW5kZW5jeSIgewogICAgICAgICAgICAgICAgZGFzaGVkIHRydWUKICAgICAgICAgICAgICAgIGNvbG9yICNmZmJmMDAKICAgICAgICAgICAgfQogICAgICAgIH0KICAgIH0KfQ==",
+    "structurizr.inspection.error" : "20",
+    "structurizr.dsl" : "d29ya3NwYWNlICJWYWx1ZU9iamVjdHMgTm9kZS5qcyBpbXBsZW1lbnRhdGlvbiIgewoKICAgIG1vZGVsIHsKCiAgICAgICAgYmlnTnVtYmVyID0gc29mdHdhcmVTeXN0ZW0gImJpZ251bWJlci5qcyIgIlRoaXJkIHBhcnR5IGxpYnJhcnkgZm9yIGFyYml0cmFyeS1wcmVjaXNpb24gZGVjaW1hbCBhbmQgbm9uLWRlY2ltYWwgYXJpdGhtZXRpYyIgewogICAgICAgICAgICB0YWdzICJleHRlcm5hbCIKICAgICAgICB9CgogICAgICAgIG5vZGVKc0FwcCA9IHNvZnR3YXJlU3lzdGVtICJOb2RlLmpzIEFwcGxpY2F0aW9uIiAiUmVmZXJlbmNlIGltcGxlbWVudGF0aW9uIG9mIHRoZSBEREQgVmFsdWUgT2JqZWN0IHBhdHRlcm4sIGJ1aWx0IGFzIHRlYWNoaW5nIG1hdGVyaWFsLiIgewogICAgICAgICAgICB0YWdzICJub2RlLWpzIgoKICAgICAgICAgICAgZGVtb1J1bm5lciA9IGNvbnRhaW5lciAiQ29uc29sZSBEZW1vIiAiUnVucyBldmVyeSB2YWx1ZSBvYmplY3QgaW4gdHVybiBhbmQgcHJpbnRzIHdoYXQgZWFjaCBvbmUgZ3VhcmFudGVlcy4iIHsKICAgICAgICAgICAgICAgIHRhZ3MgImRlbW8iCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGRvbWFpbkxheWVyID0gY29udGFpbmVyICJEb21haW4gTGF5ZXIiICJUaGUgdmFsdWUgb2JqZWN0cyB0aGVtc2VsdmVzOiBzZWxmLXZhbGlkYXRpbmcsIGltbXV0YWJsZSwgY29tcGFyZWQgYnkgdmFsdWUuIiB7CiAgICAgICAgICAgICAgICB0YWdzICJkb21haW4iCgogICAgICAgICAgICAgICAgdmFsdWVPYmplY3QgPSBjb21wb25lbnQgIlZhbHVlIE9iamVjdCIgIkFic3RyYWN0IGJhc2UgY2xhc3M6IGltbXV0YWJpbGl0eSwgYW5kIGVxdWFsaXR5IGJ5IGRlY2xhcmVkIGNvbXBvbmVudHMgcmF0aGVyIHRoYW4gYnkgaWRlbnRpdHkuIiB7CiAgICAgICAgICAgICAgICAgICAgdGFncyAiYWJzdHJhY3QiCiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgZW1haWxWTyA9IGNvbXBvbmVudCAiRW1haWwiICJFbWFpbCBhZGRyZXNzLCBub3JtYWxpc2VkIHRvIGxvd2VyY2FzZSBhbmQgdHJpbW1lZCwgc28gYWRkcmVzc2VzIGRpZmZlcmluZyBvbmx5IGluIGNhc2UgYXJlIG9uZSB2YWx1ZS4iIHsKICAgICAgICAgICAgICAgICAgICB0YWdzICJ2YWx1ZS1vYmplY3QiICJlbWFpbCIKICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICBtb25leVZPID0gY29tcG9uZW50ICJNb25leSIgIkFuIEFtb3VudCBkZW5vbWluYXRlZCBpbiBhIEN1cnJlbmN5LCByb3VuZGVkIGhhbGYgdXAgdG8gdGhhdCBjdXJyZW5jeSdzIGRlY2ltYWwgcGxhY2VzIGF0IGNvbnN0cnVjdGlvbi4iIHsKICAgICAgICAgICAgICAgICAgICB0YWdzICJ2YWx1ZS1vYmplY3QiICJtb25leSIKICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICBhbW91bnRWTyA9IGNvbXBvbmVudCAiQW1vdW50IiAiQW4gZXhhY3QgZGVjaW1hbCBxdWFudGl0eSwgd2l0aCBubyBjdXJyZW5jeSBhdHRhY2hlZC4gTWF5IGJlIG5lZ2F0aXZlLiIgewogICAgICAgICAgICAgICAgICAgIHRhZ3MgInZhbHVlLW9iamVjdCIgImFtb3VudCIKICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICBjdXJyZW5jeVZPID0gY29tcG9uZW50ICJDdXJyZW5jeSIgIkEgc3VwcG9ydGVkIGRlbm9taW5hdGlvbiBmcm9tIGEgY2xvc2VkIHNldCwgY2FycnlpbmcgdGhlIElTTyBjb2RlIGFuZCB0aGUgZGVjaW1hbCBwbGFjZXMgaXRzIGFtb3VudHMgYXJlIGV4cHJlc3NlZCBpbi4iIHsKICAgICAgICAgICAgICAgICAgICB0YWdzICJ2YWx1ZS1vYmplY3QiICJjdXJyZW5jeSIKICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICBwcmljZVZPID0gY29tcG9uZW50ICJQcmljZSIgIk1vbmV5IGNvbnN0cmFpbmVkIHRvIG5vbi1uZWdhdGl2ZTogd2hhdCBzb21ldGhpbmcgY29zdHMuIiB7CiAgICAgICAgICAgICAgICAgICAgdGFncyAidmFsdWUtb2JqZWN0IiAicHJpY2UiCiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgY3VycmVuY3lDb2RlcyA9IGNvbXBvbmVudCAiQ3VycmVuY3kgQ29kZXMiICJUaGUgY2xvc2VkIHNldCBvZiBzdXBwb3J0ZWQgSVNPIGNvZGVzIGFuZCB0aGUgZGVjaW1hbCBwbGFjZXMgZWFjaCBvbmUgaXMgZXhwcmVzc2VkIGluLiIgewogICAgICAgICAgICAgICAgICAgIHRhZ3MgInR5cGVzIgogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9CiAgICAgICAgfQoKICAgICAgICBlbWFpbFZPIC0+IHZhbHVlT2JqZWN0ICJpbmhlcml0cyBmcm9tIgogICAgICAgIG1vbmV5Vk8gLT4gdmFsdWVPYmplY3QgImluaGVyaXRzIGZyb20iCiAgICAgICAgY3VycmVuY3lWTyAtPiB2YWx1ZU9iamVjdCAiaW5oZXJpdHMgZnJvbSIKICAgICAgICBhbW91bnRWTyAtPiB2YWx1ZU9iamVjdCAiaW5oZXJpdHMgZnJvbSIKICAgICAgICBwcmljZVZPIC0+IHZhbHVlT2JqZWN0ICJpbmhlcml0cyBmcm9tIgoKICAgICAgICAvLyBNb25leSBidWlsZHMgdGhlIEFtb3VudHMgaXQgaG9sZHMgKEFtb3VudC5jcmVhdGUsIGFtb3VudC5yb3VuZCk7IGl0IG5ldmVyCiAgICAgICAgLy8gYnVpbGRzIGEgQ3VycmVuY3ksIHdoaWNoIGFycml2ZXMgYWxyZWFkeSBpbnRlcm5lZC4gUHJpY2UgbmV2ZXIgYnVpbGRzIGEKICAgICAgICAvLyBNb25leSBlaXRoZXIuIFRoZSBsYWJlbHMga2VlcCB0aGF0IGRpZmZlcmVuY2UsIGJlY2F1c2UgaXQgaXMgdGhlIG9uZSB0aGF0CiAgICAgICAgLy8gZXhwbGFpbnMgd2h5IEN1cnJlbmN5LkFsbCBleGlzdHMgYW5kIEFtb3VudCBoYXMgbm8gZXF1aXZhbGVudC4KICAgICAgICBtb25leVZPIC0+IGFtb3VudFZPICJidWlsZHMgYW5kIGhvbGRzIgogICAgICAgIG1vbmV5Vk8gLT4gY3VycmVuY3lWTyAiaG9sZHMsIGFuZCB0YWtlcyBpdHMgc2NhbGUgZnJvbSIKCiAgICAgICAgcHJpY2VWTyAtPiBtb25leVZPICJyZWZpbmVzLCBhZGRpbmcgbm9uLW5lZ2F0aXZpdHkiCgogICAgICAgIGN1cnJlbmN5Vk8gLT4gY3VycmVuY3lDb2RlcyAicmVhZHMgdGhlIHN1cHBvcnRlZCBzZXQgYW5kIGl0cyBzY2FsZXMiCiAgICAgICAgbW9uZXlWTyAtPiBjdXJyZW5jeUNvZGVzICJuYW1lcyB0aGUgY29kZSBvbiB0aGUgd2lyZSBmb3JtIgoKICAgICAgICBhbW91bnRWTyAtPiBiaWdOdW1iZXIgImRlbGVnYXRlcyBkZWNpbWFsIGFyaXRobWV0aWMgdG8sIGFuZCBrZWVwcyBvdXQgb2YgaXRzIHB1YmxpYyBBUEkiIHsKICAgICAgICAgICAgdGFncyAiZXh0ZXJuYWwtZGVwZW5kZW5jeSIKICAgICAgICB9CgogICAgICAgIGRlbW9SdW5uZXIgLT4gZG9tYWluTGF5ZXIgImV4ZXJjaXNlcyIKICAgIH0KCiAgICB2aWV3cyB7CgogICAgICAgIHByb3BlcnRpZXMgewogICAgICAgICAgICAic3RydWN0dXJpenIubG9jYWxlIiAiZW4tVVMiCiAgICAgICAgfQoKICAgICAgICBjb250YWluZXIgbm9kZUpzQXBwICJBcHBsaWNhdGlvbi1Db250YWluZXJzInsKICAgICAgICAgICAgaW5jbHVkZSAqCgogICAgICAgICAgICBhdXRvbGF5b3V0IGxyCgogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IGRvbWFpbkxheWVyICJEb21haW4tTGF5ZXItT3ZlcnZpZXciewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgLy8gS2VwdCBvdXQgb24gcHVycG9zZTogYXMgYW4gZWxlbWVudCBvdXRzaWRlIGJvdGggYm91bmRhcmllcywgYXV0b2xheW91dAogICAgICAgICAgICAvLyBwbGFjZXMgaXQgd2hlcmUgdGhlIHNvZnR3YXJlIHN5c3RlbSBib3VuZGFyeSBpcyBsYXRlciBkcmF3biBvdmVyIGl0LgogICAgICAgICAgICAvLyBUaGUgZGVwZW5kZW5jeSBpcyBzaG93biBpbiBmdWxsIGluIHRoZSBBbW91bnQtVmFsdWUtT2JqZWN0IHZpZXcuCiAgICAgICAgICAgIGV4Y2x1ZGUgYmlnTnVtYmVyCiAgICAgICAgICAgIC8vIEV4cGxpY2l0IHBhcmFtZXRlcnM6IGEgYmFyZSBgYXV0b2xheW91dGAgbGV0cyBzdGFsZSB2YWx1ZXMgY2FjaGVkIGluCiAgICAgICAgICAgIC8vIHdvcmtzcGFjZS5qc29uIHdpbiwgYW5kIHRpZ2h0IHNlcGFyYXRpb24gaXMgd2hhdCBsZXRzIHRoZSBib3VuZGFyeQogICAgICAgICAgICAvLyBjcm93ZCBpdHMgbmVpZ2hib3Vycy4KICAgICAgICAgICAgYXV0b2xheW91dCBsciAzMDAgMzAwCgogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IGRvbWFpbkxheWVyICJFbWFpbC1WYWx1ZS1PYmplY3QiewogICAgICAgICAgICBpbmNsdWRlIHZhbHVlT2JqZWN0CiAgICAgICAgICAgIGluY2x1ZGUgZW1haWxWTwoKICAgICAgICAgICAgYXV0b2xheW91dCBscgoKICAgICAgICB9CgogICAgICAgIGNvbXBvbmVudCBkb21haW5MYXllciAiQW1vdW50LVZhbHVlLU9iamVjdCJ7CiAgICAgICAgICAgIGluY2x1ZGUgdmFsdWVPYmplY3QKICAgICAgICAgICAgaW5jbHVkZSBhbW91bnRWTwogICAgICAgICAgICBpbmNsdWRlIGJpZ051bWJlcgoKICAgICAgICAgICAgYXV0b2xheW91dCBscgoKICAgICAgICB9CgogICAgICAgIGNvbXBvbmVudCBkb21haW5MYXllciAiQ3VycmVuY3ktVmFsdWUtT2JqZWN0InsKICAgICAgICAgICAgaW5jbHVkZSB2YWx1ZU9iamVjdAogICAgICAgICAgICBpbmNsdWRlIGN1cnJlbmN5Vk8KICAgICAgICAgICAgaW5jbHVkZSBjdXJyZW5jeUNvZGVzCgogICAgICAgICAgICBhdXRvbGF5b3V0IGxyCgogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IGRvbWFpbkxheWVyICJNb25leS1WYWx1ZS1PYmplY3QiewogICAgICAgICAgICBpbmNsdWRlIHZhbHVlT2JqZWN0CiAgICAgICAgICAgIGluY2x1ZGUgbW9uZXlWTwogICAgICAgICAgICBpbmNsdWRlIGFtb3VudFZPCiAgICAgICAgICAgIGluY2x1ZGUgY3VycmVuY3lWTwogICAgICAgICAgICBpbmNsdWRlIGN1cnJlbmN5Q29kZXMKCiAgICAgICAgICAgIGF1dG9sYXlvdXQgbHIKCiAgICAgICAgfQoKICAgICAgICBjb21wb25lbnQgZG9tYWluTGF5ZXIgIlByaWNlLVZhbHVlLU9iamVjdCJ7CiAgICAgICAgICAgIGluY2x1ZGUgdmFsdWVPYmplY3QKICAgICAgICAgICAgaW5jbHVkZSBwcmljZVZPCiAgICAgICAgICAgIGluY2x1ZGUgbW9uZXlWTwoKICAgICAgICAgICAgYXV0b2xheW91dCBscgoKICAgICAgICB9CgoKCiAgICAgICAgc3R5bGVzIHsKCiAgICAgICAgICAgIGVsZW1lbnQgInZhbHVlLW9iamVjdCIgewogICAgICAgICAgICAgICAgc2hhcGUgUm91bmRlZEJveAogICAgICAgICAgICAgICAgc3Ryb2tlV2lkdGggMgogICAgICAgICAgICAgICAgc3Ryb2tlICIjMDAwMDAwIgogICAgICAgICAgICB9CgogICAgICAgICAgICBlbGVtZW50ICJleHRlcm5hbCIgewogICAgICAgICAgICAgICAgc2hhcGUgUm91bmRlZEJveAogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAiI2ZmYmYwMCIKICAgICAgICAgICAgICAgIGNvbG9yICIjMDAwMDAwIgogICAgICAgICAgICB9CgogICAgICAgICAgICBlbGVtZW50ICJhYnN0cmFjdCIgewogICAgICAgICAgICAgICAgc2hhcGUgUm91bmRlZEJveAogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAiI2YwZjBmMCIKICAgICAgICAgICAgICAgIGNvbG9yICIjMDAwMDAwIgogICAgICAgICAgICB9CgogICAgICAgICAgICBlbGVtZW50ICJ0eXBlcyIgewogICAgICAgICAgICAgICAgc2hhcGUgUm91bmRlZEJveAogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAiI2UwZTBlMCIKICAgICAgICAgICAgICAgIGNvbG9yICIjMDAwMDAwIgogICAgICAgICAgICB9CgogICAgICAgICAgICBlbGVtZW50ICJub2RlLWpzIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBSb3VuZGVkQm94CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICIjOTBDNTNGIgogICAgICAgICAgICAgICAgY29sb3IgIiNmZmZmZmYiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGVsZW1lbnQgImRvbWFpbiIgewogICAgICAgICAgICAgICAgc2hhcGUgUm91bmRlZEJveAogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAiIzQzOGRkNSIKICAgICAgICAgICAgICAgIGNvbG9yICIjZmZmZmZmIgogICAgICAgICAgICB9CgogICAgICAgICAgICBlbGVtZW50ICJkZW1vIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBSb3VuZGVkQm94CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICIjN2Y4YzhkIgogICAgICAgICAgICAgICAgY29sb3IgIiNmZmZmZmYiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIC8vIFNoYXBlIGNvbWVzIGZyb20gdGhlICJ2YWx1ZS1vYmplY3QiIHRhZyBldmVyeSBvbmUgb2YgdGhlc2UgY2Fycmllcy4KICAgICAgICAgICAgZWxlbWVudCAiZW1haWwiIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIiM2ZDRjNDEiCiAgICAgICAgICAgICAgICBjb2xvciAiI2ZmZmZmZiIKICAgICAgICAgICAgfQoKICAgICAgICAgICAgZWxlbWVudCAibW9uZXkiIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIiM0YTJjOGUiCiAgICAgICAgICAgICAgICBjb2xvciAiI2ZmZmZmZiIKICAgICAgICAgICAgfQoKICAgICAgICAgICAgZWxlbWVudCAiYW1vdW50IiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICIjNWUzNWIxIgogICAgICAgICAgICAgICAgY29sb3IgIiNmZmZmZmYiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGVsZW1lbnQgImN1cnJlbmN5IiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICIjMzk0OWFiIgogICAgICAgICAgICAgICAgY29sb3IgIiNmZmZmZmYiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGVsZW1lbnQgInByaWNlIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICIjN2U1N2MyIgogICAgICAgICAgICAgICAgY29sb3IgIiNmZmZmZmYiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIHJlbGF0aW9uc2hpcCAiZXh0ZXJuYWwtZGVwZW5kZW5jeSIgewogICAgICAgICAgICAgICAgZGFzaGVkIHRydWUKICAgICAgICAgICAgICAgIGNvbG9yICIjZmZiZjAwIgogICAgICAgICAgICB9CiAgICAgICAgfQogICAgfQp9",
     "structurizr.inspection.info" : "0",
     "structurizr.inspection.ignore" : "0",
     "structurizr.inspection.warning" : "0"
@@ -178,12 +217,8 @@
         "rankSeparation" : 300,
         "vertices" : true
       },
-      "containerId" : "3",
+      "containerId" : "4",
       "elements" : [ {
-        "id" : "4",
-        "x" : 0,
-        "y" : 0
-      }, {
         "id" : "5",
         "x" : 0,
         "y" : 0
@@ -201,18 +236,22 @@
         "y" : 0
       }, {
         "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
         "x" : 0,
         "y" : 0
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Domain-Layer-Overview",
       "name" : "Component View: Node.js Application - Domain Layer",
-      "order" : 1,
+      "order" : 2,
       "relationships" : [ {
-        "id" : "10"
-      }, {
-        "id" : "11"
-      }, {
         "id" : "12"
       }, {
         "id" : "13"
@@ -224,6 +263,14 @@
         "id" : "16"
       }, {
         "id" : "17"
+      }, {
+        "id" : "18"
+      }, {
+        "id" : "19"
+      }, {
+        "id" : "20"
+      }, {
+        "id" : "21"
       } ]
     }, {
       "automaticLayout" : {
@@ -233,22 +280,22 @@
         "rankSeparation" : 100,
         "vertices" : true
       },
-      "containerId" : "3",
+      "containerId" : "4",
       "elements" : [ {
-        "id" : "4",
+        "id" : "5",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "5",
+        "id" : "6",
         "x" : 0,
         "y" : 0
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Email-Value-Object",
       "name" : "Component View: Node.js Application - Domain Layer",
-      "order" : 2,
+      "order" : 3,
       "relationships" : [ {
-        "id" : "10"
+        "id" : "12"
       } ]
     }, {
       "automaticLayout" : {
@@ -258,17 +305,71 @@
         "rankSeparation" : 100,
         "vertices" : true
       },
-      "containerId" : "3",
+      "containerId" : "4",
       "elements" : [ {
         "id" : "1",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "4",
+        "id" : "5",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "6",
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Amount-Value-Object",
+      "name" : "Component View: Node.js Application - Domain Layer",
+      "order" : 4,
+      "relationships" : [ {
+        "id" : "15"
+      }, {
+        "id" : "22"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "containerId" : "4",
+      "elements" : [ {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Currency-Value-Object",
+      "name" : "Component View: Node.js Application - Domain Layer",
+      "order" : 5,
+      "relationships" : [ {
+        "id" : "14"
+      }, {
+        "id" : "20"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "containerId" : "4",
+      "elements" : [ {
+        "id" : "5",
         "x" : 0,
         "y" : 0
       }, {
@@ -279,23 +380,33 @@
         "id" : "8",
         "x" : 0,
         "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Money-Value-Object",
       "name" : "Component View: Node.js Application - Domain Layer",
-      "order" : 3,
+      "order" : 6,
       "relationships" : [ {
-        "id" : "11"
-      }, {
-        "id" : "12"
-      }, {
         "id" : "13"
+      }, {
+        "id" : "14"
       }, {
         "id" : "15"
       }, {
-        "id" : "16"
+        "id" : "17"
       }, {
         "id" : "18"
+      }, {
+        "id" : "20"
+      }, {
+        "id" : "21"
       } ]
     }, {
       "automaticLayout" : {
@@ -305,30 +416,30 @@
         "rankSeparation" : 100,
         "vertices" : true
       },
-      "containerId" : "3",
+      "containerId" : "4",
       "elements" : [ {
-        "id" : "4",
+        "id" : "5",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "6",
+        "id" : "7",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "9",
+        "id" : "10",
         "x" : 0,
         "y" : 0
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Price-Value-Object",
       "name" : "Component View: Node.js Application - Domain Layer",
-      "order" : 4,
+      "order" : 7,
       "relationships" : [ {
-        "id" : "11"
+        "id" : "13"
       }, {
-        "id" : "14"
+        "id" : "16"
       }, {
-        "id" : "17"
+        "id" : "19"
       } ]
     } ],
     "configuration" : {
@@ -345,13 +456,16 @@
         }, {
           "background" : "#5e35b1",
           "color" : "#ffffff",
-          "shape" : "RoundedBox",
           "tag" : "amount"
         }, {
-          "background" : "#5e35b1",
+          "background" : "#3949ab",
+          "color" : "#ffffff",
+          "tag" : "currency"
+        }, {
+          "background" : "#7f8c8d",
           "color" : "#ffffff",
           "shape" : "RoundedBox",
-          "tag" : "currency"
+          "tag" : "demo"
         }, {
           "background" : "#438dd5",
           "color" : "#ffffff",
@@ -360,7 +474,6 @@
         }, {
           "background" : "#6d4c41",
           "color" : "#ffffff",
-          "shape" : "RoundedBox",
           "tag" : "email"
         }, {
           "background" : "#ffbf00",
@@ -370,7 +483,6 @@
         }, {
           "background" : "#4a2c8e",
           "color" : "#ffffff",
-          "shape" : "RoundedBox",
           "tag" : "money"
         }, {
           "background" : "#90c53f",
@@ -380,8 +492,12 @@
         }, {
           "background" : "#7e57c2",
           "color" : "#ffffff",
-          "shape" : "RoundedBox",
           "tag" : "price"
+        }, {
+          "background" : "#e0e0e0",
+          "color" : "#000000",
+          "shape" : "RoundedBox",
+          "tag" : "types"
         }, {
           "shape" : "RoundedBox",
           "stroke" : "#000000",
@@ -395,6 +511,38 @@
         } ]
       },
       "terminology" : { }
-    }
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "Application-Containers",
+      "name" : "Container View: Node.js Application",
+      "order" : 1,
+      "relationships" : [ {
+        "id" : "23"
+      }, {
+        "id" : "25"
+      } ],
+      "softwareSystemId" : "2"
+    } ]
   }
 }

@@ -6,34 +6,42 @@ workspace "ValueObjects Node.js implementation" {
             tags "external"
         }
 
-        nodeJsApp = softwareSystem "Node.js Application" {
+        nodeJsApp = softwareSystem "Node.js Application" "Reference implementation of the DDD Value Object pattern, built as teaching material." {
             tags "node-js"
 
-            domainLayer = container "Domain Layer" {
+            demoRunner = container "Console Demo" "Runs every value object in turn and prints what each one guarantees." {
+                tags "demo"
+            }
+
+            domainLayer = container "Domain Layer" "The value objects themselves: self-validating, immutable, compared by value." {
                 tags "domain"
 
-                valueObject = component "Value Object" "Abstract base class for all Value Objects" {
+                valueObject = component "Value Object" "Abstract base class: immutability, and equality by declared components rather than by identity." {
                     tags "abstract"
-                }               
+                }
 
-                emailVO = component "Email" "Value object for user email, ensuring format and compliance validation." {
+                emailVO = component "Email" "Email address, normalised to lowercase and trimmed, so addresses differing only in case are one value." {
                     tags "value-object" "email"
-                }                
+                }
 
-                moneyVO = component "Money" "A complex Value Object representing a specific monetary amount and currency." {
+                moneyVO = component "Money" "An Amount denominated in a Currency, rounded half up to that currency's decimal places at construction." {
                     tags "value-object" "money"
                 }
 
-                amountVO = component "Amount" "Value object representing the high-precision numerical quantity of money." {
+                amountVO = component "Amount" "An exact decimal quantity, with no currency attached. May be negative." {
                     tags "value-object" "amount"
                 }
 
-                currencyVO = component "Currency" "Value object representing currency code." {
+                currencyVO = component "Currency" "A supported denomination from a closed set, carrying the ISO code and the decimal places its amounts are expressed in." {
                     tags "value-object" "currency"
                 }
 
-                priceVO = component "Price" "Value object representing non-negative Money: what something costs." {
+                priceVO = component "Price" "Money constrained to non-negative: what something costs." {
                     tags "value-object" "price"
+                }
+
+                currencyCodes = component "Currency Codes" "The closed set of supported ISO codes and the decimal places each one is expressed in." {
+                    tags "types"
                 }
             }
         }
@@ -44,14 +52,23 @@ workspace "ValueObjects Node.js implementation" {
         amountVO -> valueObject "inherits from"
         priceVO -> valueObject "inherits from"
 
-        moneyVO -> amountVO "is composed of"
-        moneyVO -> currencyVO "is composed of"
+        // Money builds the Amounts it holds (Amount.create, amount.round); it never
+        // builds a Currency, which arrives already interned. Price never builds a
+        // Money either. The labels keep that difference, because it is the one that
+        // explains why Currency.All exists and Amount has no equivalent.
+        moneyVO -> amountVO "builds and holds"
+        moneyVO -> currencyVO "holds, and takes its scale from"
 
-        priceVO -> moneyVO "is composed of"
+        priceVO -> moneyVO "refines, adding non-negativity"
 
-        amountVO -> bigNumber "uses for high-precision arithmetic" {
+        currencyVO -> currencyCodes "reads the supported set and its scales"
+        moneyVO -> currencyCodes "names the code on the wire form"
+
+        amountVO -> bigNumber "delegates decimal arithmetic to, and keeps out of its public API" {
             tags "external-dependency"
         }
+
+        demoRunner -> domainLayer "exercises"
     }
 
     views {
@@ -60,11 +77,18 @@ workspace "ValueObjects Node.js implementation" {
             "structurizr.locale" "en-US"
         }
 
+        container nodeJsApp "Application-Containers"{
+            include *
+
+            autolayout lr
+
+        }
+
         component domainLayer "Domain-Layer-Overview"{
             include *
             // Kept out on purpose: as an element outside both boundaries, autolayout
             // places it where the software system boundary is later drawn over it.
-            // The dependency is shown in full in the Money-Value-Object view.
+            // The dependency is shown in full in the Amount-Value-Object view.
             exclude bigNumber
             // Explicit parameters: a bare `autolayout` lets stale values cached in
             // workspace.json win, and tight separation is what lets the boundary
@@ -72,11 +96,29 @@ workspace "ValueObjects Node.js implementation" {
             autolayout lr 300 300
 
         }
-        
+
         component domainLayer "Email-Value-Object"{
             include valueObject
             include emailVO
-            
+
+            autolayout lr
+
+        }
+
+        component domainLayer "Amount-Value-Object"{
+            include valueObject
+            include amountVO
+            include bigNumber
+
+            autolayout lr
+
+        }
+
+        component domainLayer "Currency-Value-Object"{
+            include valueObject
+            include currencyVO
+            include currencyCodes
+
             autolayout lr
 
         }
@@ -86,7 +128,7 @@ workspace "ValueObjects Node.js implementation" {
             include moneyVO
             include amountVO
             include currencyVO
-            include bigNumber
+            include currencyCodes
 
             autolayout lr
 
@@ -101,7 +143,7 @@ workspace "ValueObjects Node.js implementation" {
 
         }
 
-        
+
 
         styles {
 
@@ -113,61 +155,69 @@ workspace "ValueObjects Node.js implementation" {
 
             element "external" {
                 shape RoundedBox
-                background #ffbf00
+                background "#ffbf00"
                 color "#000000"
             }
 
             element "abstract" {
                 shape RoundedBox
-                background #f0f0f0
+                background "#f0f0f0"
+                color "#000000"
+            }
+
+            element "types" {
+                shape RoundedBox
+                background "#e0e0e0"
                 color "#000000"
             }
 
             element "node-js" {
                 shape RoundedBox
-                background #90C53F
+                background "#90C53F"
                 color "#ffffff"
             }
 
             element "domain" {
                 shape RoundedBox
-                background #438dd5
+                background "#438dd5"
                 color "#ffffff"
             }
 
-            element "email" {
+            element "demo" {
                 shape RoundedBox
-                background #6d4c41
+                background "#7f8c8d"
+                color "#ffffff"
+            }
+
+            // Shape comes from the "value-object" tag every one of these carries.
+            element "email" {
+                background "#6d4c41"
                 color "#ffffff"
             }
 
             element "money" {
-                shape RoundedBox
-                background #4a2c8e
+                background "#4a2c8e"
                 color "#ffffff"
             }
 
             element "amount" {
-                shape RoundedBox
-                background #5e35b1
+                background "#5e35b1"
                 color "#ffffff"
             }
 
             element "currency" {
-                shape RoundedBox
-                background #5e35b1
+                background "#3949ab"
                 color "#ffffff"
             }
 
             element "price" {
-                shape RoundedBox
-                background #7e57c2
+                background "#7e57c2"
                 color "#ffffff"
             }
 
             relationship "external-dependency" {
                 dashed true
-                color #ffbf00
+                color "#ffbf00"
             }
         }
     }
