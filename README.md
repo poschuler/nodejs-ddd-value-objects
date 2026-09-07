@@ -101,7 +101,11 @@ The decisions recorded so far:
 │       └───price.vo.ts            # Refinement: Money constrained to non-negative
 ├───test/
 │   └───domain/                    # One suite per value object, using node:test
-├───architecture/                  # Structurizr workspace and exported diagrams
+├───architecture/
+│   ├───workspace.dsl              # The C4 model, as code
+│   └───diagrams/                  # Exported SVGs, one directory per colour mode
+├───scripts/
+│   └───export-diagrams.sh         # Re-exports every view (pnpm run diagrams)
 ├───docs/
 │   ├───adr/                       # Architecture decision records
 │   └───agents/                    # Conventions the AI coding skills read
@@ -116,25 +120,43 @@ The decisions recorded so far:
 
 Diagrams follow the C4 model and are defined as code in
 [`architecture/workspace.dsl`](architecture/workspace.dsl), rendered with
-[Structurizr](https://structurizr.com/). The SVGs below are exports; run Structurizr locally for
-the interactive version.
+[Structurizr](https://structurizr.com/). The SVGs below are exports — `pnpm run diagrams`
+re-renders every view, in both colour modes; the dark ones are shown here, and the light ones sit
+beside them in `architecture/diagrams/light/`. Run Structurizr locally for the interactive
+version.
 
-- **Domain-Layer-Overview** — every value object and its relationship to the abstract base class.
+- **Application-Containers** — the two containers: the domain as a library, and the console
+  demo that exercises it.
 
-    ![Domain Layer Overview](architecture/diagrams/Domain-Layer-Overview.svg)
+    ![Application Containers](architecture/diagrams/dark/Application-Containers.svg)
+
+- **Domain-Layer-Overview** — every value object, its relationship to the abstract base class,
+  and the supported currency codes they read.
+
+    ![Domain Layer Overview](architecture/diagrams/dark/Domain-Layer-Overview.svg)
 
 - **Email-Value-Object** — a single, simple value object in isolation.
 
-    ![Email Value Object](architecture/diagrams/Email-Value-Object.svg)
+    ![Email Value Object](architecture/diagrams/dark/Email-Value-Object.svg)
 
-- **Money-Value-Object** — composition: `Money` built from `Amount` and `Currency`, and the
-  external dependency on `bignumber.js`.
+- **Amount-Value-Object** — the external dependency: `Amount` delegates decimal arithmetic to
+  `bignumber.js` and keeps it out of its public API.
 
-    ![Money Value Object](architecture/diagrams/Money-Value-Object.svg)
+    ![Amount Value Object](architecture/diagrams/dark/Amount-Value-Object.svg)
+
+- **Currency-Value-Object** — a closed set: `Currency` reads the supported codes and the decimal
+  places each one is expressed in.
+
+    ![Currency Value Object](architecture/diagrams/dark/Currency-Value-Object.svg)
+
+- **Money-Value-Object** — composition: `Money` built from `Amount` and `Currency`, rounded to
+  that currency's scale.
+
+    ![Money Value Object](architecture/diagrams/dark/Money-Value-Object.svg)
 
 - **Price-Value-Object** — refinement: `Price` narrowing `Money` with a non-negativity invariant.
 
-    ![Price Value Object](architecture/diagrams/Price-Value-Object.svg)
+    ![Price Value Object](architecture/diagrams/dark/Price-Value-Object.svg)
 
 ### Running Structurizr Locally
 
