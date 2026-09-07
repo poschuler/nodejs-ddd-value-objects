@@ -13,7 +13,8 @@
     "test:watch": "tsx --test --watch \"test/**/*.test.ts\"",
     "test:coverage": "tsx --test --experimental-test-coverage \"test/**/*.test.ts\"",
     "lint": "biome check src test",
-    "lint:fix": "biome check --write src test"
+    "lint:fix": "biome check --write src test",
+    "diagrams": "bash ./scripts/export-diagrams.sh"
   },
   "keywords": [],
   "author": "",
